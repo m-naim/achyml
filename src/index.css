@@ -1,0 +1,406 @@
+:root {
+  --sidebar-w: 260px;
+  --editor-w: 460px;  /* éditeur plus large */
+  --comp-bg: #0000ff;
+  --comp-border: #222;
+  --pill-green: #16a085;
+  --pill-orange: #f39c12;
+  --pill-gray: #95a5a6;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #222;
+  background: #f5f6f8;
+}
+
+.app-grid {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  gap: 8px;
+  height: 100vh;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.editor-area {
+  padding: 12px;
+  border-right: 1px solid #e5e5e5;
+  background: #fafafa;
+  border-radius: 8px;
+  transition: width 0.3s, min-width 0.3s;
+  min-width: var(--editor-w);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.canvas-area {
+    width: 100%;
+    padding: 8px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    position: relative;
+}
+
+
+.canvas-compare {
+  flex: 1 1 50%;
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(10,10,10,0.04);
+  padding: 8px;
+}
+
+.palette {
+  padding: 8px;
+  border-left: 1px solid #e5e5e5;
+  background: #fafafa;
+  border-radius: 8px;
+  transition: width 0.3s, min-width 0.3s, opacity 0.3s;
+  min-width: var(--sidebar-w);
+  box-sizing: border-box;
+  position: relative;
+  opacity: 1;
+}
+.palette[style*="display: none"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+/* component base node */
+.component-node.base-node {
+  background: transparent;
+  z-index: 0;
+}
+
+/* header */
+.comp-header {
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.comp-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111;
+}
+.comp-sub {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+
+
+
+/* color variants */
+.element-pill.pill-green { background: var(--pill-green); }
+.element-pill.pill-orange { background: var(--pill-orange); }
+.element-pill.pill-gray { background: var(--pill-gray); }
+
+
+
+/* fallback empty */
+.comp-empty {
+  font-size: 12px;
+  color: #999;
+}
+
+/* tweak React Flow node defaults to be transparent */
+.react-flow__node-default {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* simple form controls */
+input, select {
+  width: 100%;
+  padding: 6px 8px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+button {
+  padding: 6px 10px;
+  background: #1976d2;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover { opacity: 0.95; }
+
+/* Properties panel */
+.properties {
+  padding: 8px;
+}
+
+/* base node visual tweak: components are base nodes (non-connectable) */
+.base-node {
+  position: relative;
+  pointer-events: none; /* avoid intercepting pointer events for element handles */
+}
+
+
+
+/* ensure React Flow node wrapper doesn't block handle clicks */
+.react-flow__node-default > .component-node.base-node {
+  pointer-events: none;
+}
+.react-flow__node-default .element-handle {
+  pointer-events: auto;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+
+/* element node (interactive pill) */
+.element-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  min-width: 140px;
+}
+
+/* badge + label inside element */
+
+
+/* color variants */
+.element-node.pill-green { background: #16a085; }
+.element-node.pill-orange { background: #f39c12; }
+.element-node.pill-gray { background: #7f8c8d; }
+
+/* handle tweaks: make handles visible and clickable */
+
+
+/* position small offset so handle sits slightly outside pill */
+.react-flow__handle-left {
+  left: -6px;
+}
+.react-flow__handle-right {
+  right: -6px;
+}
+
+
+
+.palette > div button:hover { transform: translateY(-1px); transition: 120ms; }
+
+/* ensure canvases fill available area */
+.canvas-area { display: flex; align-items: stretch; justify-content: center; }
+.canvas-area > * { width: 100%; height: 100%; }
+
+/* make yaml editor take full height */
+.yaml-editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* important for flex child scrolling */
+}
+
+
+
+.yaml-editor-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* ensure Monaco editor takes full height */
+.monaco-editor {
+  height: 100% !important;
+}
+
+.palette-toggle-button {
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    top: 16px;
+    right: 0px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 30;
+    transition: right 0.3s;
+}
+
+/* Hide palette/editor-area: let center take all space */
+.palette[style*="display: none"], .editor-area[style*="display: none"] {
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.add-component-btn {
+  position: absolute;
+  top: 15px;
+  right: 40px;
+  z-index: 40;
+  width: fit-content;
+  height: fit-content;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.add-component-btn:hover {
+  opacity: 0.95;
+}
+
+.chain-filter {
+    display: flex;
+    flex-direction: column;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  background: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  min-width: 0;
+  max-width: var(--sidebar-w);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chain-filter-title {
+  margin: 0;
+  font-size: 18px;
+  color: #1976d2;
+  font-weight: 700;
+}
+
+.chain-filter-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.chain-filter-label {
+  font-size: 13px;
+  color: #444;
+}
+
+.chain-filter-selected {
+  font-weight: 600;
+  color: #1976d2;
+  background: #e3f2fd;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 13px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.chain-filter-none {
+  color: #aaa;
+}
+
+.chain-filter-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.chain-filter-show {
+  background: #1976d2;
+  color: #fff;
+}
+
+.chain-filter-show:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.chain-filter-disable {
+  background: #eee;
+  color: #1976d2;
+}
+
+.chain-filter-disable:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.chain-filter-details {
+  margin-top: 16px;
+}
+
+.chain-filter-chainfor {
+  font-size: 14px;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.chain-filter-chainfor span {
+  color: #1976d2;
+}
+
+.chain-filter-lists {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.chain-filter-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  max-width: 140px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.chain-filter-list-el,
+.chain-filter-list-link {
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-bottom: 2px;
+  display: inline-block;
+  max-width: 120px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.chain-filter-list-link {
+  background: #fffde7;
+  color: #f59e42;
+}

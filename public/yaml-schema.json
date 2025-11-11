@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "version": { "type": "number" },
+    "style": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "object",
+              "properties": {
+                "background": { "type": "string" },
+                "border": { "type": "string" },
+                "borderRadius": { "type": "number" },
+                "fontColor": { "type": "string" },
+                "fontSize": { "type": "number" }
+              }
+            }
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "background": { "type": "string" },
+              "border": { "type": "string" },
+              "borderRadius": { "type": "number" },
+              "fontColor": { "type": "string" },
+              "fontSize": { "type": "number" }
+            }
+          }
+        },
+        "element": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "object",
+              "properties": {
+                "background": { "type": "string" },
+                "fontColor": { "type": "string" },
+                "fontSize": { "type": "number" },
+                "borderRadius": { "type": "number" }
+              }
+            }
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "background": { "type": "string" },
+              "fontColor": { "type": "string" },
+              "fontSize": { "type": "number" },
+              "borderRadius": { "type": "number" }
+            }
+          }
+        },
+        "link": {
+          "type": "object",
+          "properties": {
+            "default": {
+              "type": "object",
+              "properties": {
+                "color": { "type": "string" },
+                "width": { "type": "number" },
+                "style": { "type": "string", "enum": ["solid", "dashed"] }
+              }
+            }
+          },
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "color": { "type": "string" },
+              "width": { "type": "number" },
+              "style": { "type": "string", "enum": ["solid", "dashed"] }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["microservice", "mongodb", "sql", "api-gateway", "queue", "cache", "external"] },
+          "name": { "type": "string" },
+          "level": { "type": "number" },
+          "column": { "type": "number" },
+          "description": { "type": "string" },
+          "collapsed": { "type": "boolean" },
+          "metadata": { "type": "object" },
+          "elements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "type": "string", "enum": ["route", "collection", "table"] },
+                "name": { "type": "string" },
+                "method": { "type": "string", "enum": ["GET", "POST", "PUT", "DELETE"] },
+                "path": { "type": "string" },
+                "description": { "type": "string" },
+                "dependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "to": { "type": "string" },
+                      "label": { "type": "string" },
+                      "type": { "type": "string" },
+                      "weight": { "type": ["string", "number"] },
+                      "cardinality": { "type": ["string", "number"] }
+                    },
+                    "required": ["to"]
+                  }
+                }
+              },
+              "required": ["id", "type"]
+            }
+          }
+        },
+        "required": ["id", "type", "level", "column"]
+      }
+    }
+  },
+  "required": ["components", "version"]
+}

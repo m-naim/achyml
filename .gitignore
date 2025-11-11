@@ -1,0 +1,50 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build output
+/build/
+dist/
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# Dependency directories
+.env
+.env.*
+.venv
+env/
+venv/
+ENV/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log
+
+# Others
+*.swp
+*.bak
+*.tmp
+*.orig
+*.rej
+*.swo
+*.swn
+
+#IA
+/docs/**

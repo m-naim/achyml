@@ -1,0 +1,233 @@
+version: 1
+components:
+  - id: svc-auth
+    type: microservice
+    name: auth-service
+    level: 3
+    column: 3
+    elements:
+      - id: route-login
+        type: route
+        method: POST
+        path: /login
+        dependencies:
+          - to: c
+          - to: per
+      - id: route-register
+        type: route
+        method: POST
+        path: /register
+        dependencies:
+          - to: db-users
+      - id: route-profile
+        type: route
+        method: GET
+        path: /profile
+        dependencies:
+          - to: db-users
+      - id: route-logout
+        type: route
+        method: POST
+        path: /logout
+        dependencies: []
+      - id: route-update
+        type: route
+        method: PUT
+        path: /update
+        dependencies:
+          - to: db-users
+      - id: route-delete
+        type: route
+        method: DELETE
+        path: /delete
+        dependencies:
+          - to: db-users
+  - id: db-users
+    type: mongodb
+    name: mongo-db
+    level: 3
+    column: 5
+    elements:
+      - id: bct
+        type: collection
+        name: bct
+        dependencies: []
+      - id: users
+        type: collection
+        name: users
+        dependencies: []
+      - id: logs
+        type: collection
+        name: logs
+        dependencies: []
+  - id: wso2
+    type: api-manager
+    name: wso2
+    level: 2
+    column: 2
+    elements:
+      - id: wso2-login
+        type: route
+        method: POST
+        path: /login
+        dependencies:
+          - to: route-login
+      - id: wso2-logout
+        type: route
+        method: POST
+        path: /logout
+        dependencies:
+          - to: route-logout
+      - id: wso2-profile
+        type: route
+        method: GET
+        path: /profile
+        dependencies:
+          - to: route-profile
+  - id: bff
+    type: bff
+    name: bff
+    level: 1
+    column: 1
+    elements:
+      - id: bff-login
+        type: route
+        method: POST
+        path: /login
+        dependencies:
+          - to: wso2-login
+      - id: bff-profile
+        type: route
+        method: GET
+        path: /profile
+        dependencies:
+          - to: wso2-profile
+      - id: bff-logout
+        type: route
+        method: POST
+        path: /logout
+        dependencies:
+          - to: wso2-logout
+  - id: contrat
+    type: microservice
+    name: contrat
+    level: 2
+    column: 3
+    elements:
+      - id: c
+        name: /v2/contrat
+        type: route
+        method: GET
+        dependencies:
+          - to: call
+      - id: contrat-create
+        name: /v2/contrat/create
+        type: route
+        method: POST
+        dependencies: []
+      - id: contrat-update
+        name: /v2/contrat/update
+        type: route
+        method: PUT
+        dependencies: []
+      - id: contrat-delete
+        name: /v2/contrat/delete
+        type: route
+        method: DELETE
+        dependencies: []
+  - id: comp-mhjsaefs
+    type: microservice
+    name: transfert
+    level: 2
+    column: 3
+    elements:
+      - id: transfert-create
+        name: /v2/transfert/create
+        type: route
+        method: POST
+        dependencies: []
+      - id: transfert-list
+        name: /v2/transfert/list
+        type: route
+        method: GET
+        dependencies: []
+  - id: comp-mhjsaefs
+    name: bct
+    type: microservice
+    level: 2
+    column: 4
+    elements:
+      - id: call
+        name: /contract-all
+        type: route
+        method: GET
+        dependencies:
+          - to: bct
+      - id: bct-stats
+        name: /bct/stats
+        type: route
+        method: GET
+        dependencies: []
+  - id: permission
+    name: permission
+    type: microservice
+    level: 2
+    column: 4
+    elements:
+      - id: per
+        name: /permessions
+        type: route
+        method: GET
+        dependencies: []
+      - id: per-update
+        name: /permessions/update
+        type: route
+        method: PUT
+        dependencies: []
+      - id: per-delete
+        name: /permessions/delete
+        type: route
+        method: DELETE
+        dependencies: []
+style:
+  component:
+    default:
+      background: '#f8fafc'
+      border: '#222'
+      borderRadius: 16
+      fontColor: '#222'
+      fontSize: 14
+    microservice:
+      background: '#e0f7fa'
+      border: '#a7b0dbff'
+  element:
+    default:
+      background: '#e0e0e0'
+      fontColor: '#222'
+    route:
+      background: '#34d399'
+      fontColor: '#fff'
+    GET:
+      background: '#61affe'    # Swagger blue
+      fontColor: '#fff'
+    POST:
+      background: '#49cc90'    # Swagger green
+      fontColor: '#fff'
+    PUT:
+      background: '#fca130'    # Swagger orange
+      fontColor: '#fff'
+    DELETE:
+      background: '#f93e3e'    # Swagger red
+      fontColor: '#fff'
+    PATCH:
+      background: '#50e3c2'    # Swagger teal
+      fontColor: '#fff'
+    HEAD:
+      background: '#9012fe'    # Swagger purple
+      fontColor: '#fff'
+    OPTIONS:
+      background: '#0d5aa7'    # Swagger dark blue
+      fontColor: '#fff'
+    TRACE:
+      background: '#bada55'    # Swagger lime
+      fontColor: '#222'
