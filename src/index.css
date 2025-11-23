@@ -31,7 +31,7 @@ html, body, #root {
   border-right: 1px solid #e5e5e5;
   background: #fafafa;
   border-radius: 8px;
-  transition: width 0.3s, min-width 0.3s;
+  transition: width 0.2s, min-width 0.2s, max-width 0.2s, opacity 0.3s;
   min-width: var(--editor-w);
   box-sizing: border-box;
   position: relative;
@@ -65,7 +65,7 @@ html, body, #root {
   border-left: 1px solid #e5e5e5;
   background: #fafafa;
   border-radius: 8px;
-  transition: width 0.3s, min-width 0.3s, opacity 0.3s;
+  transition: width 0.2s, min-width 0.2s, max-width 0.2s, opacity 0.3s;
   min-width: var(--sidebar-w);
   box-sizing: border-box;
   position: relative;
@@ -278,23 +278,27 @@ button:hover { opacity: 0.95; }
 }
 
 .chain-filter {
-    display: flex;
-    flex-direction: column;
-  padding: 16px;
+  position: absolute;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
   border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  margin-bottom: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
   background: #f8fafc;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   min-width: 0;
-  max-width: var(--sidebar-w);
+  max-width: 180px;
   width: 100%;
+  height: fit-content;
   box-sizing: border-box;
+  z-index: 200;
 }
 
 .chain-filter-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 13px;
   color: #1976d2;
   font-weight: 700;
 }
@@ -302,13 +306,13 @@ button:hover { opacity: 0.95; }
 .chain-filter-controls {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 4px;
 }
 
 .chain-filter-label {
-  font-size: 13px;
+  font-size: 11px;
   color: #444;
 }
 
@@ -316,23 +320,24 @@ button:hover { opacity: 0.95; }
   font-weight: 600;
   color: #1976d2;
   background: #e3f2fd;
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 13px;
-  min-width: 60px;
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 11px;
+  min-width: 40px;
   text-align: center;
 }
 
 .chain-filter-none {
   color: #aaa;
+  font-size: 11px;
 }
 
 .chain-filter-btn {
   border: none;
-  border-radius: 6px;
-  padding: 4px 12px;
+  border-radius: 4px;
+  padding: 2px 8px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 11px;
   cursor: pointer;
   transition: opacity 0.2s;
 }
@@ -358,13 +363,13 @@ button:hover { opacity: 0.95; }
 }
 
 .chain-filter-details {
-  margin-top: 16px;
+  margin-top: 6px;
 }
 
 .chain-filter-chainfor {
-  font-size: 14px;
+  font-size: 12px;
   color: #222;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .chain-filter-chainfor span {
@@ -373,15 +378,15 @@ button:hover { opacity: 0.95; }
 
 .chain-filter-lists {
   display: flex;
-  gap: 16px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .chain-filter-list {
   margin: 0;
-  padding-left: 18px;
-  font-size: 13px;
-  max-width: 140px;
+  padding-left: 10px;
+  font-size: 11px;
+  max-width: 100px;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
@@ -390,11 +395,11 @@ button:hover { opacity: 0.95; }
 .chain-filter-list-link {
   background: #e3f2fd;
   color: #1976d2;
-  border-radius: 4px;
-  padding: 2px 6px;
-  margin-bottom: 2px;
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-bottom: 1px;
   display: inline-block;
-  max-width: 120px;
+  max-width: 80px;
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
@@ -463,4 +468,31 @@ button:hover { opacity: 0.95; }
 .swagger-modal li {
   margin-bottom: 4px;
   word-break: break-all;
+}
+
+.sidebar-resize-handle {
+  background: transparent;
+  position: absolute;
+  width: 6px;
+  z-index: 100;
+  cursor: col-resize;
+  user-select: none;
+}
+.sidebar-resize-handle:hover {
+  background: #e0e0e0;
+}
+
+.sidebar-hide-btn, .sidebar-show-btn {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  color: #1976d2;
+  transition: background 0.2s;
+}
+.sidebar-hide-btn:hover, .sidebar-show-btn:hover {
+  background: #e0e0e0;
 }

@@ -1,12 +1,9 @@
 import React, { useRef } from "react";
 import * as d3 from "d3";
-import { useStore } from "../store";
-import type { ComponentItem, LinkItem, Model } from "../types";
-import { getStyle } from "../utils/d3Style";
+import { useStore } from "../../store/store";
+import type { ComponentItem, LinkItem, Model } from "../../types";
 import { ZoomControls } from "./ZoomControls";
-import { computeElementPositions, computeCanvasSize, computeDynamicComponentPositions } from "../utils/d3Layout";
-import { renderSvgDefs } from "../utils/d3Defs";
-import { useD3CanvasEffect } from "../utils/useD3CanvasEffect";
+import { useD3CanvasEffect } from "../../utils/useD3CanvasEffect";
 
 // Updated spacing constants
 const COL_WIDTH = 320;

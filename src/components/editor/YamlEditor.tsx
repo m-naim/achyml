@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useStore } from "../store";
-import Editor from "@monaco-editor/react";
-import { setupYamlMonacoSchema } from "../utils/yamlMonaco";
-import { extractStyleFromYaml } from "../utils/yamlStyle";
+import { useStore } from "../../store/store";
+import { setupYamlMonacoSchema } from "../../utils/yamlMonaco";
 import YamlEditorToolbar from "./YamlEditorToolbar";
 import YamlMonacoEditor from "./YamlMonacoEditor";
-import YamlStylePreview from "./YamlStylePreview";
 
-// --- Editeur YAML principal ---
+
 export default function YamlEditor() {
   const store = useStore();
   const [text, setText] = useState(store.toYaml());

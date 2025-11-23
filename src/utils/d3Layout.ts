@@ -9,13 +9,6 @@ const ELEMENT_GAP = 24;
 const PARENT_PADDING = 32;
 
 export function computeDynamicComponentPositions(components: ComponentItem[]) {
-  // Group by column and level for grid placement
-  const COL_WIDTH = 320;
-  const COLUMN_GAP = 160;
-  const ROW_HEIGHT = 240;
-  const ELEMENT_H = 60;
-  const ELEMENT_GAP = 24;
-  const PARENT_PADDING = 32;
 
   // Map: col -> level -> [components]
   const gridMap = new Map<number, Map<number, ComponentItem[]>>();
@@ -47,15 +40,14 @@ export function computeDynamicComponentPositions(components: ComponentItem[]) {
       for (const comp of comps) {
         const elementsCount = comp.elements?.length ?? 0;
         const compHeight = Math.max(
-          ROW_HEIGHT,
-          elementsCount * ELEMENT_H + PARENT_PADDING * 2
+          ROW_HEIGHT  +  PARENT_PADDING * 2,
+          elementsCount * ELEMENT_H + elementsCount* ELEMENT_GAP +  PARENT_PADDING * 4
         );
         const x = (col - 1) * colSpacing + 60;
-        y = lastY+ lastCompHeight + 32;
+        y = lastY+ lastCompHeight;
         compPositions.set(comp.id, { x, y });
-        lastY=y,
-        lastCompHeight= compHeight+ 32;
-        console.log(col,lvl,elementsCount , y ,lastCompHeight);
+        lastY=y;
+        lastCompHeight= compHeight;
         
       }
     }

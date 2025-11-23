@@ -1,5 +1,5 @@
 import create from "zustand";
-import { Model, ComponentItem, ElementItem, LinkItem } from "./types";
+import { Model, ComponentItem, ElementItem, LinkItem } from "../types";
 import yaml from "js-yaml";
 
 const STORAGE_KEY = "achyml:model:v1";
@@ -17,6 +17,7 @@ type State = {
   addComponent: (c?: Partial<ComponentItem>) => ComponentItem;
   updateComponent: (id: string, patch: Partial<ComponentItem>) => void;
   removeComponent: (id: string) => void;
+  updateElement: (id: string, patch: Partial<ElementItem>) => void;
   styleConfig?: any;
   setStyleConfig: (style: any) => void;
   links?: LinkItem[];
@@ -243,6 +244,7 @@ export const useStore = create<State>((set, get) => ({
     // clear selection if deleted
     if (get().selectedId === id) get().select(null);
   },
+
   setStyleConfig: (style) => {
     set({ styleConfig: style });
     // Optionally, update model.style for graph rendering
@@ -252,5 +254,57 @@ export const useStore = create<State>((set, get) => ({
         style: style
       }
     }));
+  },
+
+  updateElement: (id, patch) => {
+    const model = get().model;
+    let newLinks = model.links ? [...model.links] : [];
+    let prevDependencies: any[] = [];
+    let newDependencies: any[] = [];
+
+    // Find the element and its previous dependencies
+    for (const comp of model.components) {
+      if (!comp.elements) continue;
+      for (const el of comp.elements) {
+        if (el.id === id) {
+          prevDependencies = el.dependencies ?? [];
+        }
+      }
+    }
+
+    // If dependencies are being updated, handle links
+    if (patch.dependencies) {
+      newDependencies = patch.dependencies;
+      // Add links for new dependencies not already present
+      newDependencies.forEach(dep => {
+        const exists = newLinks.some(l => l.from === id && l.to === dep.to);
+        if (!exists) {
+          newLinks.push({
+            id: `dep-${id}-to-${dep.to}`,
+            from: id,
+            to: dep.to,
+            label: dep.label
+          });
+        }
+      });
+      // Optionally, remove links for deleted dependencies
+      prevDependencies.forEach(dep => {
+        if (!newDependencies.some(nd => nd.to === dep.to)) {
+          newLinks = newLinks.filter(l => !(l.from === id && l.to === dep.to));
+        }
+      });
+    }
+
+    // Update the element in components
+    const comps = (model.components || []).map((comp) => {
+      if (!comp.elements) return comp;
+      const elements = comp.elements.map((el) =>
+        el.id === id ? { ...el, ...patch } : el
+      );
+      return { ...comp, elements };
+    });
+    const nextModel = { ...model, components: comps, links: newLinks };
+    // This will update YAML, save to localStorage, and trigger UI updates
+    get().setModel(nextModel);
   }
 }));

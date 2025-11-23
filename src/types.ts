@@ -30,4 +30,5 @@ export type Model = {
   version?: number;
   components: ComponentItem[];
   links?: LinkItem[];
+  style?:  { [key: string]: any };
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import Editor from "@monaco-editor/react";
-import { setupYamlMonacoSchema } from "../utils/yamlMonaco";
+import { setupYamlMonacoSchema } from "../../utils/yamlMonaco";
 
 export default function YamlMonacoEditor({ value, schema, onChange }: {
   value: string;

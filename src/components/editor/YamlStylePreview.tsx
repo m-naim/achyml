@@ -1,5 +1,5 @@
 import React from "react";
-import { extractStyleFromYaml } from "../utils/yamlStyle";
+import { extractStyleFromYaml } from "../../utils/yamlStyle";
 
 export default function YamlStylePreview({ yamlText }: { yamlText: string }) {
   const styleConfig = extractStyleFromYaml(yamlText);

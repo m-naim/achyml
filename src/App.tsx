@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { useStore } from "./store";
-import D3Canvas from "./components/D3Canvas";
-import YamlEditor from "./components/YamlEditor";
-import Palette from "./components/Palette";
-import Properties from "./components/Properties";
+import React, { useEffect, useState, useRef } from "react";
+import { useStore } from "./store/store";
+import D3Canvas from "./components/canvas_area/D3Canvas";
+import YamlEditor from "./components/editor/YamlEditor";
+import Palette from "./components/palette/Palette";
+import Properties from "./components/palette/Properties";
 import sampleYaml from "../public/sample.yaml?raw";
-import { SvgChevron } from "./components/SvgChevron";
-import ChainFilter from "./components/ChainFilter";
-import SwaggerImportModal from "./components/SwaggerImportModal";
+import { SvgChevron } from "./components/canvas_area/SvgChevron";
+import ChainFilter from "./components/canvas_area/ChainFilter";
+import SwaggerImportModal from "./components/modals/SwaggerImportModal";
 
 export default function App() {
   const loadFromStorage = useStore((s) => s.loadFromStorage);
   const setModelFromYaml = useStore((s) => s.setModelFromYaml);
   const [error, setError] = useState<string | null>(null);
-  const [paletteOpen, setPaletteOpen] = useState(true);
   const [showPaletteAdd, setShowPaletteAdd] = useState(false);
   const [chainFilter, setChainFilter] = useState<{
     active: boolean;
@@ -23,6 +22,13 @@ export default function App() {
   const [swaggerModalOpen, setSwaggerModalOpen] = useState(false);
   const selectedId = useStore((s) => s.selectedId);
   const model = useStore((s) => s.model);
+  const [editorWidth, setEditorWidth] = useState(460);
+  const [paletteWidth, setPaletteWidth] = useState(260);
+  const [editorOpen, setEditorOpen] = useState(true);
+  const [paletteOpen, setPaletteOpen] = useState(true);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef<{ type: "editor" | "palette" | null, startX: number, startW: number }>({ type: null, startX: 0, startW: 0 });
 
   // Determine if selectedId is an element (not a component)
   const isElementSelected = selectedId
@@ -69,25 +75,74 @@ export default function App() {
     };
   }
 
+  // Drag handlers
+  const onDragStart = (type: "editor" | "palette", e: React.MouseEvent) => {
+    dragState.current = { type, startX: e.clientX, startW: type === "editor" ? editorWidth : paletteWidth };
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("mousemove", onDragMove);
+    window.addEventListener("mouseup", onDragEnd);
+  };
+  const onDragMove = (e: MouseEvent) => {
+    if (dragState.current.type === "editor") {
+      let w = Math.max(260, dragState.current.startW + (e.clientX - dragState.current.startX));
+      setEditorWidth(w);
+    }
+    if (dragState.current.type === "palette") {
+      let w = Math.max(180, dragState.current.startW - (e.clientX - dragState.current.startX));
+      setPaletteWidth(w);
+    }
+  };
+  const onDragEnd = () => {
+    dragState.current.type = null;
+    document.body.style.cursor = "";
+    window.removeEventListener("mousemove", onDragMove);
+    window.removeEventListener("mouseup", onDragEnd);
+  };
+
   return (
     <div className="app-grid">
-      <aside className="editor-area">
+      {/* Editor sidebar */}
+      <aside
+        className="editor-area"
+        ref={editorRef}
+        style={{
+          minWidth: editorOpen ? editorWidth : 0,
+          width: editorOpen ? editorWidth : 0,
+          maxWidth: editorOpen ? editorWidth : 0,
+          display: editorOpen ? "flex" : "none"
+        }}
+      >
         <YamlEditor />
         {error && <div className="error">{error}</div>}
-      </aside>
-      <main className="canvas-area">
-        {/* Palette toggle button always rendered, positioned absolutely */}
+        <div
+          className="sidebar-resize-handle"
+          style={{ right: 0, top: 0, height: "100%", position: "absolute", width: 6, cursor: "col-resize", zIndex: 100 }}
+          onMouseDown={e => onDragStart("editor", e)}
+        />
         <button
-          className="palette-toggle-button"
-          onClick={() => setPaletteOpen((v) => !v)}
-          title={paletteOpen ? "Masquer la palette" : "Afficher la palette"}
+          className="sidebar-hide-btn"
+          style={{ position: "absolute", top: 12, left: editorWidth - 28, zIndex: 101 }}
+          onClick={() => setEditorOpen(false)}
+          title="Hide editor"
         >
-          {paletteOpen ? (
-            <SvgChevron direction="left" />
-          ) : (
-            <SvgChevron direction="right" />
-          )}
+          &lt;
         </button>
+      </aside>
+      {/* Show editor show button when hidden */}
+      {!editorOpen && (
+        <button
+          className="sidebar-show-btn"
+          style={{ position: "absolute", left: 0, top: 12, zIndex: 102 }}
+          onClick={() => setEditorOpen(true)}
+          title="Show editor"
+        >
+            <SvgChevron direction="left" />
+        </button>
+      )}
+      <main className="canvas-area">
+         <ChainFilter onFilter={handleChainFilter} />
+        {/* Palette toggle button always rendered, positioned absolutely */}
+
         {/* Add component button in graph */}
         {!isElementSelected && (
           <button
@@ -103,12 +158,17 @@ export default function App() {
           </div>
         </div>
       </main>
+      {/* Palette sidebar */}
       <aside
         className="palette"
+        ref={paletteRef}
         style={{
           display: paletteOpen && !isElementSelected ? "flex" : "none",
           flexDirection: "column",
           position: "relative",
+          minWidth: paletteOpen ? paletteWidth : 0,
+          width: paletteOpen ? paletteWidth : 0,
+          maxWidth: paletteOpen ? paletteWidth : 0
         }}
       >
         {/* Add Swagger Import button at the top of palette */}
@@ -123,7 +183,6 @@ export default function App() {
           <Palette onlyAdd={true} onAdd={() => setShowPaletteAdd(false)} />
         ) : (
           <>
-            <ChainFilter onFilter={handleChainFilter} />
             <Properties />
           </>
         )}
@@ -133,19 +192,59 @@ export default function App() {
             onClose={() => setSwaggerModalOpen(false)}
           />
         )}
+        <div
+          className="sidebar-resize-handle"
+          style={{ left: 0, top: 0, height: "100%", position: "absolute", width: 6, cursor: "col-resize", zIndex: 100 }}
+          onMouseDown={e => onDragStart("palette", e)}
+        />
+        <button
+          className="sidebar-hide-btn"
+          style={{ position: "absolute", top: 12, right: paletteWidth - 28, zIndex: 101 }}
+          onClick={() => setPaletteOpen(false)}
+          title="Hide palette"
+        >
+          &gt;
+        </button>
       </aside>
+      {/* Show palette show button when hidden */}
+      {!paletteOpen && (
+        <button
+          className="sidebar-show-btn"
+          style={{ position: "absolute", right: 0, top: 12, zIndex: 102 }}
+          onClick={() => setPaletteOpen(true)}
+          title="Show palette"
+        >
+          &lt;
+        </button>
+      )}
       {/* When element is selected, show only Properties panel (hide palette) */}
       {isElementSelected && (
         <aside
           className="palette"
+          ref={paletteRef}
           style={{
             display: "flex",
             flexDirection: "column",
             position: "relative",
+            minWidth: paletteOpen ? paletteWidth : 0,
+            width: paletteOpen ? paletteWidth : 0,
+            maxWidth: paletteOpen ? paletteWidth : 0
           }}
         >
-          <ChainFilter onFilter={handleChainFilter} />
           <Properties />
+          <div
+            className="sidebar-resize-handle"
+            style={{ left: 0, top: 0, height: "100%", position: "absolute", width: 6, cursor: "col-resize", zIndex: 100 }}
+            onMouseDown={e => onDragStart("palette", e)}
+          />
+          <button
+            className="sidebar-hide-btn"
+            style={{ position: "absolute", top: 12, right: paletteWidth - 28, zIndex: 101 }}
+            onClick={() => setPaletteOpen(false)}
+            title="Hide palette"
+          >
+            &gt;
+          </button>
         </aside>
       )}
     </div>

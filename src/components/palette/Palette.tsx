@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useStore } from "../store";
+import { useStore } from "../../store/store";
 
 export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean; onAdd?: () => void }) {
   const addComponent = useStore((s) => s.addComponent);
@@ -52,12 +52,7 @@ export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean;
           <button onClick={doAdd}>Add component</button>
         </div>
       </div>
-      {/* Hide other palette content if onlyAdd is true */}
-      {!onlyAdd && (
-        <div style={{ marginTop: 16, color: "#888" }}>
-          {/* ...other palette content if needed... */}
-        </div>
-      )}
+
     </div>
   );
 }

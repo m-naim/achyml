@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useStore } from "../store";
+import { useStore } from "../../store/store";
 
 export default function SwaggerImportModal({ onClose }: { onClose: () => void }) {
   const [routes, setRoutes] = useState<any[]>([]);

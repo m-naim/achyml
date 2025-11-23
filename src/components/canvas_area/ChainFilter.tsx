@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { useStore } from "../store";
-import type { ComponentItem, LinkItem } from "../types";
+import { useStore } from "../../store/store";
+import type { ComponentItem, LinkItem } from "../../types";
 
 // Helper to get all upstream and downstream element ids from a start id
 function getChainIds(startId: string, links: LinkItem[]) {

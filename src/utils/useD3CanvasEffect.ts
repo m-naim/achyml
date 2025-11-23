@@ -50,7 +50,7 @@ export function useD3CanvasEffect({ model, select, ref, gRef, zoomRef }: Props) 
       const elementsCount = comp.elements?.length ?? 0;
       const compHeight = Math.max(
         240,
-        elementsCount * (40 + 24) + 32 * 3
+        elementsCount * (40 + 24) + 32 * 3 
       );
       const compStyle = getStyle(model, "component", comp.type);
 
