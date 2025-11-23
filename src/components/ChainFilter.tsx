@@ -60,10 +60,12 @@ export default function ChainFilter({ onFilter }: { onFilter: (filter: { active:
     return getChainIds(selectedId, model.links || []);
   }, [active, selectedId, model.links]);
 
-  // Notify parent (App) when filter changes
+  // Only call onFilter when values actually change, not on every render
   React.useEffect(() => {
+    // Only call onFilter if active or if filter is cleared
     onFilter({ active, elementIds, linkIds });
-  }, [active, elementIds, linkIds, onFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, selectedId, model.links]); // Only depend on active, selectedId, model.links
 
   return (
     <div className="chain-filter">

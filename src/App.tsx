@@ -7,6 +7,7 @@ import Properties from "./components/Properties";
 import sampleYaml from "../public/sample.yaml?raw";
 import { SvgChevron } from "./components/SvgChevron";
 import ChainFilter from "./components/ChainFilter";
+import SwaggerImportModal from "./components/SwaggerImportModal";
 
 export default function App() {
   const loadFromStorage = useStore((s) => s.loadFromStorage);
@@ -19,6 +20,7 @@ export default function App() {
     elementIds: string[];
     linkIds: string[];
   } | null>(null);
+  const [swaggerModalOpen, setSwaggerModalOpen] = useState(false);
   const selectedId = useStore((s) => s.selectedId);
   const model = useStore((s) => s.model);
 
@@ -109,6 +111,13 @@ export default function App() {
           position: "relative",
         }}
       >
+        {/* Add Swagger Import button at the top of palette */}
+        <button
+          className="swagger-import-btn"
+          onClick={() => setSwaggerModalOpen(true)}
+        >
+          Import Swagger/OpenAPI
+        </button>
         {/* Show only Palette add form if showPaletteAdd is true */}
         {showPaletteAdd ? (
           <Palette onlyAdd={true} onAdd={() => setShowPaletteAdd(false)} />
@@ -117,6 +126,12 @@ export default function App() {
             <ChainFilter onFilter={handleChainFilter} />
             <Properties />
           </>
+        )}
+        {/* Modal for Swagger Import */}
+        {swaggerModalOpen && (
+          <SwaggerImportModal
+            onClose={() => setSwaggerModalOpen(false)}
+          />
         )}
       </aside>
       {/* When element is selected, show only Properties panel (hide palette) */}

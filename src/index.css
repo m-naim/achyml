@@ -404,3 +404,63 @@ button:hover { opacity: 0.95; }
   background: #fffde7;
   color: #f59e42;
 }
+
+.swagger-import-btn {
+  width: 100%;
+  margin-bottom: 12px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.swagger-import-btn:hover {
+  opacity: 0.95;
+}
+
+.swagger-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swagger-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 24px 32px 24px 24px;
+  min-width: 340px;
+  max-width: 420px;
+  position: relative;
+}
+
+.swagger-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #1976d2;
+  cursor: pointer;
+}
+
+.swagger-modal ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.swagger-modal li {
+  margin-bottom: 4px;
+  word-break: break-all;
+}
