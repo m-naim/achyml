@@ -3,7 +3,7 @@ export function setupYamlMonacoSchema(schema: any) {
   if (window.monaco && window.monaco.languages?.yaml) {
     // @ts-ignore
     window.monaco.languages.yaml.yamlDefaults.setDiagnosticsOptions({
-      enableSchemaRequest: false,
+      enableSchemaRequest: true,
       validate: true,
       schemas: [
         {

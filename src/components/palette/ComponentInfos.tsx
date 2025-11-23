@@ -23,10 +23,19 @@ export default function ComponentInfos({ comp }: any) {
         </label>
         <label>
           Type
-          <input
+          <select
             value={comp.type ?? ""}
             onChange={(e) => updateComponent(comp.id, { type: e.target.value })}
-          />
+          >
+            <option value="microservice">microservice</option>
+            <option value="mongodb">mongodb</option>
+            <option value="sql">database-sql</option>
+            <option value="api-gateway">api-gateway</option>
+            <option value="queue">queue</option>
+            <option value="cache">cache</option>
+            <option value="mainframe">mainframe</option>
+            <option value="external">external-api</option>
+          </select>
         </label>
         <label>
           Level

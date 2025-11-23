@@ -161,7 +161,7 @@ export default function ElementsInfos({ el , parentComp}: any) {
               return (
                 <div key={dep.to} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, background: "#e3f2fd", borderRadius: 4, padding: "2px 8px" }}>
                   <span>
-                    {targetComp ? `${targetComp.name} / ` : ""}
+                    {targetComp ? `${targetComp.name} ` : ""}
                     {targetElem ? targetElem.name : dep.to}
                   </span>
                   <button

@@ -10,11 +10,10 @@ export type ElementItem = {
 };
 
 export type ComponentItem = {
-  id: string;
+  name: string;
   type: string;
-  name?: string;
-  level: number;
-  column: number;
+  level?: number;
+  column?: number;
   elements?: ElementItem[];
   [k: string]: any;
 };

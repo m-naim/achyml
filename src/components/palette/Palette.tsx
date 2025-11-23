@@ -37,6 +37,7 @@ export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean;
             <option value="api-gateway">api-gateway</option>
             <option value="queue">queue</option>
             <option value="cache">cache</option>
+            <option value="mainframe">mainframe</option>
             <option value="external">external-api</option>
           </select>
         </label>

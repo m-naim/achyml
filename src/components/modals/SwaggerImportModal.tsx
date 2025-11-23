@@ -49,7 +49,7 @@ export default function SwaggerImportModal({ onClose }: { onClose: () => void })
     setLoading(true);
     setError(null);
     if (!workerRef.current) {
-      workerRef.current = new Worker(new URL("../workers/swaggerWorker.ts", import.meta.url));
+      workerRef.current = new Worker(new URL("../../workers/swaggerWorker.js", import.meta.url));
     }
     workerRef.current.onmessage = (e) => {
       setLoading(false);

@@ -1,6 +1,6 @@
 self.onmessage = async function (e) {
   try {
-    let routes: any[] = [];
+    let routes = [];
     let url = e.data;
     console.log("[worker] Received URL:", url);
     const jsonUrl = await resolveSwaggerJsonUrl(url);
@@ -14,21 +14,21 @@ self.onmessage = async function (e) {
   }
 };
 
-async function fetchText(url: string) {
+async function fetchText(url) {
   const res = await fetch(url);
   return res.ok ? await res.text() : null;
 }
 
-async function fetchJson(url: string) {
+async function fetchJson(url) {
   const res = await fetch(url);
   return res.ok ? await res.json() : null;
 }
 
 function extractJsUrl(
-  html: string,
-  base: string,
-  pageUrl: string
-): string | null {
+  html,
+  base,
+  pageUrl
+){
   const scriptMatch = html.match(
     /<script\s+src=["']([^"']*swagger-initializer\.js)["']/i
   );
@@ -41,15 +41,15 @@ function extractJsUrl(
 }
 
 // Utility: Try to extract config from JS by parsing, fallback to regex
-function extractConfigFromJs(jsText: string, base: string) {
+function extractConfigFromJs(jsText, base) {
   // Try to execute the JS in a sandboxed Function to get window.ui
   try {
     let config = {};
     // Create a fake window and SwaggerUIBundle
-    const logs: string[] = [];
+    const logs = [];
     const sandbox = {
       SwaggerUIStandalonePreset: {},
-      SwaggerUIBundle: function (opts: any) {
+      SwaggerUIBundle: function (opts) {
         sandbox.window.ui = opts;
         return opts;
       },
@@ -61,7 +61,7 @@ function extractConfigFromJs(jsText: string, base: string) {
          },
       },
       console: {
-        log: (...args: any[]) => logs.push("[sandbox] " + args.join(" ")),
+        log: (...args) => logs.push("[sandbox] " + args.join(" ")),
       },
         
     };
@@ -95,14 +95,14 @@ function extractConfigFromJs(jsText: string, base: string) {
   }
 }
 
-async function resolveSwaggerJsonUrl(pageUrl: string): Promise<string[]> {
+async function resolveSwaggerJsonUrl(pageUrl) {
   const base = pageUrl.replace(/\/swagger(-ui)?\/index\.html$/, "");
   const htmlText = await fetchText(pageUrl);
   if (!htmlText) throw new Error("Could not fetch Swagger HTML");
   const jsUrl = extractJsUrl(htmlText, base, pageUrl);
   console.log("jsurl", jsUrl);
 
-  let foundJsonUrl: string[] = [];
+  let foundJsonUrl = [];
   let configUrl = null;
 
   if (jsUrl) {
@@ -140,8 +140,8 @@ async function resolveSwaggerJsonUrl(pageUrl: string): Promise<string[]> {
   return [base + "/swagger/v1/swagger.json"];
 }
 
-function extractRoutes(swagger: any) {
-  const routes: any[] = [];
+function extractRoutes(swagger) {
+  const routes = [];
   if (swagger.paths) {
     for (const path in swagger.paths) {
       for (const method in swagger.paths[path]) {

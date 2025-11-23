@@ -279,7 +279,8 @@ button:hover { opacity: 0.95; }
 
 .chain-filter {
   position: absolute;
-  left: 20px;
+  right: 20px;
+  bottom: 20px;
   display: flex;
   flex-direction: column;
   padding: 4px;

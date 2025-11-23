@@ -14,7 +14,6 @@ export default function YamlMonacoEditor({ value, schema, onChange }: {
         defaultLanguage="yaml"
         language="yaml"
         value={value}
-        theme="vs-dark"
         options={{
           minimap: { enabled: false },
           fontSize: 13,
