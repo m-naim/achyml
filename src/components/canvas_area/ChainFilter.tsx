@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useStore } from "../../store/store";
+import { applyChainFilter, calculateChainForComponent } from "../../utils/chainFilterUtils";
 import type { ComponentItem, LinkItem } from "../../types";
 
 // Helper to get all upstream and downstream element ids from a start id
@@ -9,7 +10,6 @@ function getChainIds(startId: string, links: LinkItem[]) {
   const visitedUp = new Set<string>();
   const visitedDown = new Set<string>();
 
-  // Upstream: recursively follow links where to == current
   function walkUp(id: string) {
     if (visitedUp.has(id)) return;
     visitedUp.add(id);
@@ -21,7 +21,6 @@ function getChainIds(startId: string, links: LinkItem[]) {
     }
   }
 
-  // Downstream: recursively follow links where from == current
   function walkDown(id: string) {
     if (visitedDown.has(id)) return;
     visitedDown.add(id);
@@ -36,7 +35,6 @@ function getChainIds(startId: string, links: LinkItem[]) {
   walkUp(startId);
   walkDown(startId);
 
-  // Always include startId
   return {
     elementIds: [startId, ...Array.from(upstream), ...Array.from(downstream)],
     linkIds: links
@@ -55,10 +53,20 @@ export default function ChainFilter({ onFilter }: { onFilter: (filter: { active:
   const selectedId = useStore((s) => s.selectedId);
   const [active, setActive] = useState(false);
 
+  // Determine if selectedId is a component or element
+  const comp = model.components.find((c: any) => c.id === selectedId);
+  const isComponent = !!comp;
+
+  // Use shared logic for chain calculation
   const { elementIds, linkIds } = useMemo(() => {
     if (!active || !selectedId) return { elementIds: [], linkIds: [] };
+    if (isComponent) {
+      // Use shared utility for component chain
+      return calculateChainForComponent(model, selectedId);
+    }
+    // Fallback to element chain
     return getChainIds(selectedId, model.links || []);
-  }, [active, selectedId, model.links]);
+  }, [active, selectedId, model.links, model.components]);
 
   React.useEffect(() => {
     onFilter({ active, elementIds, linkIds });

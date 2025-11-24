@@ -8,6 +8,7 @@ import sampleYaml from "../public/sample.yaml?url&raw";
 import { SvgChevron } from "./components/canvas_area/SvgChevron";
 import ChainFilter from "./components/canvas_area/ChainFilter";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
+import { applyChainFilter, calculateChainForComponent } from "./utils/chainFilterUtils";
 
 export default function App() {
   const loadFromStorage = useStore((s) => s.loadFromStorage);
@@ -43,7 +44,7 @@ export default function App() {
     }
   }, []);
 
-  // Handler to activate chain filter from ChainFilter component
+  // Refactored handler
   const handleChainFilter = (filter: {
     active: boolean;
     elementIds: string[];
@@ -52,24 +53,21 @@ export default function App() {
     setChainFilter(filter);
   };
 
-  // Filter model for D3Canvas if chainFilter is active
+  // Refactored chain filter application
   let filteredModel = model;
   if (chainFilter?.active && chainFilter.elementIds.length > 0) {
-    filteredModel = {
-      ...model,
-      components: (model.components || [])
-        .map((comp) => ({
-          ...comp,
-          elements: (comp.elements || []).filter((el) =>
-            chainFilter.elementIds.includes(el.id)
-          ),
-        }))
-        .filter((comp) => comp.elements && comp.elements.length > 0),
-      links: (model.links || []).filter((l) =>
-        chainFilter.linkIds.includes(l.id)
-      ),
-    };
+    filteredModel = applyChainFilter(model, chainFilter);
   }
+
+  // If a component is selected, calculate chain for all its elements
+  React.useEffect(() => {
+    if (selectedId) {
+      const comp = model.components.find((c: any) => c.id === selectedId);
+      if (comp) {
+        setChainFilter(calculateChainForComponent(model, selectedId));
+      }
+    }
+  }, [selectedId, model]);
 
   // Drag handlers
   const onDragStart = (type: "editor" | "palette", e: React.MouseEvent) => {

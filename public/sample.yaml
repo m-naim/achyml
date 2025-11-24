@@ -4,190 +4,416 @@ components:
     type: microservice
     name: auth-service
     level: 3
-    column: 3
+    column: 1
     elements:
       - id: route-login
         type: route
         method: POST
         path: /login
         dependencies:
-          - to: c
-          - to: per
+          - to: user-get
       - id: route-register
         type: route
         method: POST
         path: /register
         dependencies:
-          - to: db-users
+          - to: user-get
       - id: route-profile
         type: route
         method: GET
         path: /profile
         dependencies:
-          - to: db-users
+          - to: user-get
       - id: route-logout
         type: route
         method: POST
         path: /logout
         dependencies: []
-      - id: route-update
+      - id: route-forgot
+        type: route
+        method: POST
+        path: /forgot
+        dependencies: []
+      - id: route-reset
+        type: route
+        method: POST
+        path: /reset
+        dependencies: []
+      - id: route-verify
+        type: route
+        method: GET
+        path: /verify
+        dependencies: []
+      - id: route-refresh
+        type: route
+        method: POST
+        path: /refresh
+        dependencies: []
+      - id: route-mfa
+        type: route
+        method: POST
+        path: /mfa
+        dependencies: []
+      - id: route-mfa-verify
+        type: route
+        method: POST
+        path: /mfa/verify
+        dependencies: []
+  - id: svc-user
+    type: microservice
+    name: user-service
+    level: 3
+    column: 2
+    elements:
+      - id: user-get
+        type: route
+        method: GET
+        path: /user
+        dependencies:
+          - to: users-coll
+      - id: user-update
         type: route
         method: PUT
-        path: /update
+        path: /user/update
         dependencies:
-          - to: db-users
-      - id: route-delete
+          - to: users-coll
+      - id: user-delete
         type: route
         method: DELETE
-        path: /delete
+        path: /user/delete
         dependencies:
-          - to: db-users
+          - to: users-coll
+      - id: user-list
+        type: route
+        method: GET
+        path: /users
+        dependencies:
+          - to: users-coll
+      - id: user-create
+        type: route
+        method: POST
+        path: /user/create
+        dependencies:
+          - to: users-coll
+      - id: user-activate
+        type: route
+        method: POST
+        path: /user/activate
+        dependencies:
+          - to: users-coll
+      - id: user-deactivate
+        type: route
+        method: POST
+        path: /user/deactivate
+        dependencies:
+          - to: users-coll
+      - id: user-role
+        type: route
+        method: GET
+        path: /user/role
+        dependencies:
+          - to: users-coll
+      - id: user-permissions
+        type: route
+        method: GET
+        path: /user/permissions
+        dependencies:
+          - to: users-coll
+      - id: user-settings
+        type: route
+        method: GET
+        path: /user/settings
+        dependencies:
+          - to: users-coll
+  - id: svc-product
+    type: microservice
+    name: product-service
+    level: 2
+    column: 3
+    elements:
+      - id: product-list
+        type: route
+        method: GET
+        path: /products
+        dependencies:
+          - to: products-table
+      - id: product-detail
+        type: route
+        method: GET
+        path: /products/:id
+        dependencies:
+          - to: products-table
+      - id: product-update
+        type: route
+        method: PUT
+        path: /products/:id
+        dependencies:
+          - to: products-table
+      - id: product-create
+        type: route
+        method: POST
+        path: /products
+        dependencies:
+          - to: products-table
+      - id: product-delete
+        type: route
+        method: DELETE
+        path: /products/:id
+        dependencies:
+          - to: products-table
+      - id: product-search
+        type: route
+        method: GET
+        path: /products/search
+        dependencies:
+          - to: products-table
+      - id: product-featured
+        type: route
+        method: GET
+        path: /products/featured
+        dependencies:
+          - to: products-table
+      - id: product-category
+        type: route
+        method: GET
+        path: /products/category/:cat
+        dependencies:
+          - to: products-table
+      - id: product-stock
+        type: route
+        method: GET
+        path: /products/:id/stock
+        dependencies:
+          - to: products-table
+      - id: product-reviews
+        type: route
+        method: GET
+        path: /products/:id/reviews
+        dependencies:
+          - to: products-table
   - id: db-users
     type: mongodb
-    name: mongo-db
-    level: 3
-    column: 5
+    name: users-db
+    level: 6
+    column: 4
     elements:
-      - id: bct
-        type: collection
-        name: bct
-        dependencies: []
-      - id: users
+      - id: users-coll
         type: collection
         name: users
         dependencies: []
-      - id: logs
+      - id: logs-coll
         type: collection
         name: logs
         dependencies: []
-  - id: wso2
-    type: api-manager
-    name: wso2
+  - id: db-products
+    type: sql
+    name: products-db
+    level: 4
+    column: 4
+    elements:
+      - id: products-table
+        type: table
+        name: products
+        dependencies: []
+      - id: inventory-table
+        type: table
+        name: inventory
+        dependencies: []
+  - id: svc-order
+    type: microservice
+    name: order-service
+    level: 2
+    column: 1
+    elements:
+      - id: order-create
+        type: route
+        method: POST
+        path: /orders
+        dependencies:
+          - to: orders-table
+          - to: payment-init
+      - id: order-status
+        type: route
+        method: GET
+        path: /orders/:id/status
+        dependencies:
+          - to: orders-table
+      - id: order-cancel
+        type: route
+        method: DELETE
+        path: /orders/:id
+        dependencies:
+          - to: orders-table
+  - id: db-orders
+    type: sql
+    name: orders-db
+    level: 5
+    column: 4
+    elements:
+      - id: orders-table
+        type: table
+        name: orders
+        dependencies: []
+      - id: order-items-table
+        type: table
+        name: order_items
+        dependencies: []
+  - id: svc-payment
+    type: microservice
+    name: payment-service
     level: 2
     column: 2
     elements:
-      - id: wso2-login
+      - id: payment-init
         type: route
         method: POST
-        path: /login
+        path: /payments
         dependencies:
-          - to: route-login
-      - id: wso2-logout
-        type: route
-        method: POST
-        path: /logout
-        dependencies:
-          - to: route-logout
-      - id: wso2-profile
+          - to: payments-table
+          - to: billing-create
+      - id: payment-status
         type: route
         method: GET
-        path: /profile
+        path: /payments/:id
         dependencies:
-          - to: route-profile
-  - id: bff
-    type: bff
-    name: bff
+          - to: payments-table
+  - id: db-payments
+    type: sql
+    name: payments-db
+    level: 4
+    column: 4
+    elements:
+      - id: payments-table
+        type: table
+        name: payments
+        dependencies: []
+  - id: svc-billing
+    type: microservice
+    name: billing-service
+    level: 2
+    column: 3
+    elements:
+      - id: billing-create
+        type: route
+        method: POST
+        path: /billing
+        dependencies:
+          - to: billing-table
+      - id: billing-status
+        type: route
+        method: GET
+        path: /billing/:id
+        dependencies:
+          - to: billing-table
+  - id: db-billing
+    type: sql
+    name: billing-db
+    level: 4
+    column: 4
+    elements:
+      - id: billing-table
+        type: table
+        name: billing
+        dependencies: []
+  - id: svc-shipping
+    type: microservice
+    name: shipping-service
+    level: 2
+    column: 3
+    elements:
+      - id: shipping-create
+        type: route
+        method: POST
+        path: /shipping
+        dependencies:
+          - to: shipping-table
+      - id: shipping-status
+        type: route
+        method: GET
+        path: /shipping/:id
+        dependencies:
+          - to: shipping-table
+  - id: db-shipping
+    type: sql
+    name: shipping-db
+    level: 4
+    column: 4
+    elements:
+      - id: shipping-table
+        type: table
+        name: shipping
+        dependencies: []
+  - id: svc-notification
+    type: microservice
+    name: notification-service
     level: 1
     column: 1
     elements:
-      - id: bff-login
+      - id: notify-email
         type: route
         method: POST
-        path: /login
-        dependencies:
-          - to: wso2-login
-      - id: bff-profile
-        type: route
-        method: GET
-        path: /profile
-        dependencies:
-          - to: wso2-profile
-      - id: bff-logout
-        type: route
-        method: POST
-        path: /logout
-        dependencies:
-          - to: wso2-logout
-  - id: contrat
-    type: microservice
-    name: contrat
-    level: 2
-    column: 3
-    elements:
-      - id: c
-        name: /v2/contrat
-        type: route
-        method: GET
-        dependencies:
-          - to: call
-      - id: contrat-create
-        name: /v2/contrat/create
-        type: route
-        method: POST
+        path: /notify/email
         dependencies: []
-      - id: contrat-update
-        name: /v2/contrat/update
+      - id: notify-sms
+        type: route
+        method: POST
+        path: /notify/sms
+        dependencies: []
+  - id: svc-catalog
+    type: microservice
+    name: catalog-service
+    level: 2
+    column: 1
+    elements:
+      - id: catalog-list
+        type: route
+        method: GET
+        path: /catalog
+        dependencies:
+          - to: catalog-table
+      - id: catalog-update
         type: route
         method: PUT
-        dependencies: []
-      - id: contrat-delete
-        name: /v2/contrat/delete
-        type: route
-        method: DELETE
-        dependencies: []
-  - id: comp-mhjsaefs
-    type: microservice
-    name: transfert
-    level: 2
-    column: 3
+        path: /catalog/:id
+        dependencies:
+          - to: catalog-table
+  - id: db-catalog
+    type: sql
+    name: catalog-db
+    level: 4
+    column: 4
     elements:
-      - id: transfert-create
-        name: /v2/transfert/create
+      - id: catalog-table
+        type: table
+        name: catalog
+        dependencies: []
+  - id: svc-review
+    type: microservice
+    name: review-service
+    level: 3
+    column: 1
+    elements:
+      - id: review-create
         type: route
         method: POST
-        dependencies: []
-      - id: transfert-list
-        name: /v2/transfert/list
-        type: route
-        method: GET
-        dependencies: []
-  - id: comp-mhjsaefs
-    name: bct
-    type: microservice
-    level: 2
-    column: 4
-    elements:
-      - id: call
-        name: /contract-all
-        type: route
-        method: GET
+        path: /reviews
         dependencies:
-          - to: bct
-      - id: bct-stats
-        name: /bct/stats
+          - to: reviews-table
+      - id: review-list
         type: route
         method: GET
-        dependencies: []
-  - id: permission
-    name: permission
-    type: microservice
-    level: 2
+        path: /reviews
+        dependencies:
+          - to: reviews-table
+  - id: db-reviews
+    type: sql
+    name: reviews-db
+    level: 4
     column: 4
     elements:
-      - id: per
-        name: /permessions
-        type: route
-        method: GET
-        dependencies: []
-      - id: per-update
-        name: /permessions/update
-        type: route
-        method: PUT
-        dependencies: []
-      - id: per-delete
-        name: /permessions/delete
-        type: route
-        method: DELETE
+      - id: reviews-table
+        type: table
+        name: reviews
         dependencies: []
 style:
   component:
@@ -200,6 +426,24 @@ style:
     microservice:
       background: '#e0f7fa'
       border: '#a7b0dbff'
+    sql:
+      background: '#f3e5f5'
+      border: '#8e24aa'
+    mongodb:
+      background: '#e8f5e9'
+      border: '#388e3c'
+    api-gateway:
+      background: '#fffde7'
+      border: '#fbc02d'
+    queue:
+      background: '#e1f5fe'
+      border: '#0288d1'
+    cache:
+      background: '#fbe9e7'
+      border: '#d84315'
+    external:
+      background: '#f5f5f5'
+      border: '#616161'
   element:
     default:
       background: '#e0e0e0'
@@ -208,26 +452,26 @@ style:
       background: '#34d399'
       fontColor: '#fff'
     GET:
-      background: '#61affe'    # Swagger blue
+      background: '#61affe'
       fontColor: '#fff'
     POST:
-      background: '#49cc90'    # Swagger green
+      background: '#49cc90'
       fontColor: '#fff'
     PUT:
-      background: '#fca130'    # Swagger orange
+      background: '#fca130'
       fontColor: '#fff'
     DELETE:
-      background: '#f93e3e'    # Swagger red
+      background: '#f93e3e'
       fontColor: '#fff'
     PATCH:
-      background: '#50e3c2'    # Swagger teal
+      background: '#50e3c2'
       fontColor: '#fff'
     HEAD:
-      background: '#9012fe'    # Swagger purple
+      background: '#9012fe'
       fontColor: '#fff'
     OPTIONS:
-      background: '#0d5aa7'    # Swagger dark blue
+      background: '#0d5aa7'
       fontColor: '#fff'
     TRACE:
-      background: '#bada55'    # Swagger lime
+      background: '#bada55'
       fontColor: '#222'
