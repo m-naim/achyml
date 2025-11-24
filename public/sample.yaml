@@ -1,5 +1,6 @@
 version: 1
 components:
+  # --- User & Auth Domain ---
   - id: svc-auth
     type: microservice
     name: auth-service
@@ -58,6 +59,27 @@ components:
         type: route
         method: POST
         path: /mfa/verify
+        dependencies: []
+      # Add more routes for SSO, OAuth, device management, etc.
+      - id: route-sso
+        type: route
+        method: POST
+        path: /sso
+        dependencies: []
+      - id: route-oauth
+        type: route
+        method: POST
+        path: /oauth
+        dependencies: []
+      - id: route-device-register
+        type: route
+        method: POST
+        path: /device/register
+        dependencies: []
+      - id: route-device-verify
+        type: route
+        method: GET
+        path: /device/verify
         dependencies: []
   - id: svc-user
     type: microservice
@@ -125,6 +147,32 @@ components:
         path: /user/settings
         dependencies:
           - to: users-coll
+      # Add more routes for address, preferences, wishlist, etc.
+      - id: user-address
+        type: route
+        method: GET
+        path: /user/address
+        dependencies:
+          - to: users-coll
+      - id: user-preferences
+        type: route
+        method: GET
+        path: /user/preferences
+        dependencies:
+          - to: users-coll
+      - id: user-wishlist
+        type: route
+        method: GET
+        path: /user/wishlist
+        dependencies:
+          - to: users-coll
+      - id: user-orders
+        type: route
+        method: GET
+        path: /user/orders
+        dependencies:
+          - to: orders-table
+  # --- Product Domain ---
   - id: svc-product
     type: microservice
     name: product-service
@@ -191,6 +239,504 @@ components:
         path: /products/:id/reviews
         dependencies:
           - to: products-table
+      # Add more routes for bulk import, export, analytics, etc.
+      - id: product-import
+        type: route
+        method: POST
+        path: /products/import
+        dependencies:
+          - to: products-table
+      - id: product-export
+        type: route
+        method: GET
+        path: /products/export
+        dependencies:
+          - to: products-table
+      - id: product-analytics
+        type: route
+        method: GET
+        path: /products/analytics
+        dependencies:
+          - to: products-table
+      - id: product-tags
+        type: route
+        method: GET
+        path: /products/tags
+        dependencies:
+          - to: products-table
+  # --- Order Domain ---
+  - id: svc-order
+    type: microservice
+    name: order-service
+    level: 2
+    column: 1
+    elements:
+      - id: order-create
+        type: route
+        method: POST
+        path: /orders
+        dependencies:
+          - to: orders-table
+          - to: payment-init
+      - id: order-status
+        type: route
+        method: GET
+        path: /orders/:id/status
+        dependencies:
+          - to: orders-table
+      - id: order-cancel
+        type: route
+        method: DELETE
+        path: /orders/:id
+        dependencies:
+          - to: orders-table
+      # Add more routes for returns, refunds, tracking, etc.
+      - id: order-return
+        type: route
+        method: POST
+        path: /orders/:id/return
+        dependencies:
+          - to: orders-table
+      - id: order-refund
+        type: route
+        method: POST
+        path: /orders/:id/refund
+        dependencies:
+          - to: orders-table
+      - id: order-track
+        type: route
+        method: GET
+        path: /orders/:id/track
+        dependencies:
+          - to: orders-table
+      - id: order-history
+        type: route
+        method: GET
+        path: /orders/history
+        dependencies:
+          - to: orders-table
+      - id: order-analytics
+        type: route
+        method: GET
+        path: /orders/analytics
+        dependencies:
+          - to: orders-table
+  # --- Payment Domain ---
+  - id: svc-payment
+    type: microservice
+    name: payment-service
+    level: 2
+    column: 2
+    elements:
+      - id: payment-init
+        type: route
+        method: POST
+        path: /payments
+        dependencies:
+          - to: payments-table
+          - to: billing-table   # <-- changed from 'billing-create' to 'billing-table'
+      - id: payment-status
+        type: route
+        method: GET
+        path: /payments/:id
+        dependencies:
+          - to: payments-table
+      # Add more routes for payment methods, invoices, fraud, etc.
+      - id: payment-methods
+        type: route
+        method: GET
+        path: /payments/methods
+        dependencies:
+          - to: payments-table
+      - id: payment-invoice
+        type: route
+        method: GET
+        path: /payments/:id/invoice
+        dependencies:
+          - to: payments-table
+      - id: payment-fraud
+        type: route
+        method: POST
+        path: /payments/fraud
+        dependencies:
+          - to: payments-table
+      - id: payment-retry
+        type: route
+        method: POST
+        path: /payments/:id/retry
+        dependencies:
+          - to: payments-table
+      - id: payment-analytics
+        type: route
+        method: GET
+        path: /payments/analytics
+        dependencies:
+          - to: payments-table
+  # --- Shipping Domain ---
+  - id: svc-shipping
+    type: microservice
+    name: shipping-service
+    level: 2
+    column: 3
+    elements:
+      - id: shipping-create
+        type: route
+        method: POST
+        path: /shipping
+        dependencies:
+          - to: shipping-table
+      - id: shipping-status
+        type: route
+        method: GET
+        path: /shipping/:id
+        dependencies:
+          - to: shipping-table
+      # Add more routes for rates, carriers, zones, etc.
+      - id: shipping-rate
+        type: route
+        method: GET
+        path: /shipping/rate
+        dependencies:
+          - to: shipping-table
+      - id: shipping-carrier
+        type: route
+        method: GET
+        path: /shipping/carrier
+        dependencies:
+          - to: shipping-table
+      - id: shipping-zone
+        type: route
+        method: GET
+        path: /shipping/zone
+        dependencies:
+          - to: shipping-table
+      - id: shipping-label
+        type: route
+        method: POST
+        path: /shipping/label
+        dependencies:
+          - to: shipping-table
+      - id: shipping-analytics
+        type: route
+        method: GET
+        path: /shipping/analytics
+        dependencies:
+          - to: shipping-table
+  # --- Notification Domain ---
+  - id: svc-notification
+    type: microservice
+    name: notification-service
+    level: 1
+    column: 1
+    elements:
+      - id: notify-email
+        type: route
+        method: POST
+        path: /notify/email
+        dependencies: []
+      - id: notify-sms
+        type: route
+        method: POST
+        path: /notify/sms
+        dependencies: []
+      # Add more routes for push, webhooks, etc.
+      - id: notify-push
+        type: route
+        method: POST
+        path: /notify/push
+        dependencies: []
+      - id: notify-webhook
+        type: route
+        method: POST
+        path: /notify/webhook
+        dependencies: []
+      - id: notify-inapp
+        type: route
+        method: POST
+        path: /notify/inapp
+        dependencies: []
+      - id: notify-analytics
+        type: route
+        method: GET
+        path: /notify/analytics
+        dependencies: []
+      - id: notify-status
+        type: route
+        method: GET
+        path: /notify/status
+        dependencies: []
+  # --- Catalog Domain ---
+  - id: svc-catalog
+    type: microservice
+    name: catalog-service
+    level: 2
+    column: 1
+    elements:
+      - id: catalog-list
+        type: route
+        method: GET
+        path: /catalog
+        dependencies:
+          - to: catalog-table
+      - id: catalog-update
+        type: route
+        method: PUT
+        path: /catalog/:id
+        dependencies:
+          - to: catalog-table
+      # Add more routes for bulk, analytics, etc.
+      - id: catalog-bulk
+        type: route
+        method: POST
+        path: /catalog/bulk
+        dependencies:
+          - to: catalog-table
+      - id: catalog-analytics
+        type: route
+        method: GET
+        path: /catalog/analytics
+        dependencies:
+          - to: catalog-table
+      - id: catalog-tags
+        type: route
+        method: GET
+        path: /catalog/tags
+        dependencies:
+          - to: catalog-table
+      - id: catalog-search
+        type: route
+        method: GET
+        path: /catalog/search
+        dependencies:
+          - to: catalog-table
+      - id: catalog-export
+        type: route
+        method: GET
+        path: /catalog/export
+        dependencies:
+          - to: catalog-table
+  # --- Review Domain ---
+  - id: svc-review
+    type: microservice
+    name: review-service
+    level: 3
+    column: 1
+    elements:
+      - id: review-create
+        type: route
+        method: POST
+        path: /reviews
+        dependencies:
+          - to: reviews-table
+      - id: review-list
+        type: route
+        method: GET
+        path: /reviews
+        dependencies:
+          - to: reviews-table
+      # Add more routes for moderation, analytics, etc.
+      - id: review-moderate
+        type: route
+        method: POST
+        path: /reviews/moderate
+        dependencies:
+          - to: reviews-table
+      - id: review-analytics
+        type: route
+        method: GET
+        path: /reviews/analytics
+        dependencies:
+          - to: reviews-table
+      - id: review-report
+        type: route
+        method: POST
+        path: /reviews/report
+        dependencies:
+          - to: reviews-table
+      - id: review-reply
+        type: route
+        method: POST
+        path: /reviews/reply
+        dependencies:
+          - to: reviews-table
+      - id: review-export
+        type: route
+        method: GET
+        path: /reviews/export
+        dependencies:
+          - to: reviews-table
+  # --- Search Domain ---
+  - id: svc-search
+    type: microservice
+    name: search-service
+    level: 2
+    column: 4
+    elements:
+      - id: search-query
+        type: route
+        method: GET
+        path: /search
+        dependencies: []
+      - id: search-suggest
+        type: route
+        method: GET
+        path: /search/suggest
+        dependencies: []
+      - id: search-analytics
+        type: route
+        method: GET
+        path: /search/analytics
+        dependencies: []
+      - id: search-index
+        type: route
+        method: POST
+        path: /search/index
+        dependencies: []
+      - id: search-reindex
+        type: route
+        method: POST
+        path: /search/reindex
+        dependencies: []
+  # --- Recommendation Domain ---
+  - id: svc-recommendation
+    type: microservice
+    name: recommendation-service
+    level: 2
+    column: 5
+    elements:
+      - id: recommend-products
+        type: route
+        method: GET
+        path: /recommend/products
+        dependencies: []
+      - id: recommend-users
+        type: route
+        method: GET
+        path: /recommend/users
+        dependencies: []
+      - id: recommend-analytics
+        type: route
+        method: GET
+        path: /recommend/analytics
+        dependencies: []
+      - id: recommend-update
+        type: route
+        method: POST
+        path: /recommend/update
+        dependencies: []
+  # --- Inventory Domain ---
+  - id: svc-inventory
+    type: microservice
+    name: inventory-service
+    level: 2
+    column: 6
+    elements:
+      - id: inventory-list
+        type: route
+        method: GET
+        path: /inventory
+        dependencies:
+          - to: inventory-table
+      - id: inventory-update
+        type: route
+        method: PUT
+        path: /inventory/:id
+        dependencies:
+          - to: inventory-table
+      - id: inventory-analytics
+        type: route
+        method: GET
+        path: /inventory/analytics
+        dependencies:
+          - to: inventory-table
+      - id: inventory-export
+        type: route
+        method: GET
+        path: /inventory/export
+        dependencies:
+          - to: inventory-table
+  # --- External APIs ---
+  - id: ext-payment-gateway
+    type: external
+    name: payment-gateway
+    level: 1
+    column: 7
+    elements:
+      - id: ext-pay-init
+        type: route
+        method: POST
+        path: /external/pay/init
+        dependencies: []
+      - id: ext-pay-status
+        type: route
+        method: GET
+        path: /external/pay/status
+        dependencies: []
+  - id: ext-shipping-provider
+    type: external
+    name: shipping-provider
+    level: 1
+    column: 8
+    elements:
+      - id: ext-ship-init
+        type: route
+        method: POST
+        path: /external/ship/init
+        dependencies: []
+      - id: ext-ship-status
+        type: route
+        method: GET
+        path: /external/ship/status
+        dependencies: []
+  # --- Queues ---
+  - id: queue-orders
+    type: queue
+    name: orders-queue
+    level: 1
+    column: 9
+    elements:
+      - id: queue-order-created
+        type: event
+        name: order-created
+        dependencies: []
+      - id: queue-order-updated
+        type: event
+        name: order-updated
+        dependencies: []
+      - id: queue-order-cancelled
+        type: event
+        name: order-cancelled
+        dependencies: []
+  - id: queue-notifications
+    type: queue
+    name: notifications-queue
+    level: 1
+    column: 10
+    elements:
+      - id: queue-notify-email
+        type: event
+        name: notify-email
+        dependencies: []
+      - id: queue-notify-sms
+        type: event
+        name: notify-sms
+        dependencies: []
+  # --- Caches ---
+  - id: cache-products
+    type: cache
+    name: products-cache
+    level: 1
+    column: 11
+    elements:
+      - id: cache-products-list
+        type: cache
+        name: products-list
+        dependencies: []
+      - id: cache-products-featured
+        type: cache
+        name: products-featured
+        dependencies: []
+  # --- Databases ---
   - id: db-users
     type: mongodb
     name: users-db
@@ -219,31 +765,6 @@ components:
         type: table
         name: inventory
         dependencies: []
-  - id: svc-order
-    type: microservice
-    name: order-service
-    level: 2
-    column: 1
-    elements:
-      - id: order-create
-        type: route
-        method: POST
-        path: /orders
-        dependencies:
-          - to: orders-table
-          - to: payment-init
-      - id: order-status
-        type: route
-        method: GET
-        path: /orders/:id/status
-        dependencies:
-          - to: orders-table
-      - id: order-cancel
-        type: route
-        method: DELETE
-        path: /orders/:id
-        dependencies:
-          - to: orders-table
   - id: db-orders
     type: sql
     name: orders-db
@@ -258,25 +779,6 @@ components:
         type: table
         name: order_items
         dependencies: []
-  - id: svc-payment
-    type: microservice
-    name: payment-service
-    level: 2
-    column: 2
-    elements:
-      - id: payment-init
-        type: route
-        method: POST
-        path: /payments
-        dependencies:
-          - to: payments-table
-          - to: billing-create
-      - id: payment-status
-        type: route
-        method: GET
-        path: /payments/:id
-        dependencies:
-          - to: payments-table
   - id: db-payments
     type: sql
     name: payments-db
@@ -287,24 +789,6 @@ components:
         type: table
         name: payments
         dependencies: []
-  - id: svc-billing
-    type: microservice
-    name: billing-service
-    level: 2
-    column: 3
-    elements:
-      - id: billing-create
-        type: route
-        method: POST
-        path: /billing
-        dependencies:
-          - to: billing-table
-      - id: billing-status
-        type: route
-        method: GET
-        path: /billing/:id
-        dependencies:
-          - to: billing-table
   - id: db-billing
     type: sql
     name: billing-db
@@ -315,24 +799,6 @@ components:
         type: table
         name: billing
         dependencies: []
-  - id: svc-shipping
-    type: microservice
-    name: shipping-service
-    level: 2
-    column: 3
-    elements:
-      - id: shipping-create
-        type: route
-        method: POST
-        path: /shipping
-        dependencies:
-          - to: shipping-table
-      - id: shipping-status
-        type: route
-        method: GET
-        path: /shipping/:id
-        dependencies:
-          - to: shipping-table
   - id: db-shipping
     type: sql
     name: shipping-db
@@ -343,40 +809,6 @@ components:
         type: table
         name: shipping
         dependencies: []
-  - id: svc-notification
-    type: microservice
-    name: notification-service
-    level: 1
-    column: 1
-    elements:
-      - id: notify-email
-        type: route
-        method: POST
-        path: /notify/email
-        dependencies: []
-      - id: notify-sms
-        type: route
-        method: POST
-        path: /notify/sms
-        dependencies: []
-  - id: svc-catalog
-    type: microservice
-    name: catalog-service
-    level: 2
-    column: 1
-    elements:
-      - id: catalog-list
-        type: route
-        method: GET
-        path: /catalog
-        dependencies:
-          - to: catalog-table
-      - id: catalog-update
-        type: route
-        method: PUT
-        path: /catalog/:id
-        dependencies:
-          - to: catalog-table
   - id: db-catalog
     type: sql
     name: catalog-db
@@ -387,24 +819,6 @@ components:
         type: table
         name: catalog
         dependencies: []
-  - id: svc-review
-    type: microservice
-    name: review-service
-    level: 3
-    column: 1
-    elements:
-      - id: review-create
-        type: route
-        method: POST
-        path: /reviews
-        dependencies:
-          - to: reviews-table
-      - id: review-list
-        type: route
-        method: GET
-        path: /reviews
-        dependencies:
-          - to: reviews-table
   - id: db-reviews
     type: sql
     name: reviews-db

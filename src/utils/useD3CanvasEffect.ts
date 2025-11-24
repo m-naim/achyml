@@ -26,7 +26,7 @@ export function useD3CanvasEffect({ model, select, ref, gRef, zoomRef }: Props) 
     svg.on(".zoom", null);
 
     const zoom = d3.zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.6, 5])
+      .scaleExtent([0.8, 7])
       .on("zoom", (event) => {
         g.attr("transform", event.transform);
       });

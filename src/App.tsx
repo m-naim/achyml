@@ -59,15 +59,6 @@ export default function App() {
     filteredModel = applyChainFilter(model, chainFilter);
   }
 
-  // If a component is selected, calculate chain for all its elements
-  React.useEffect(() => {
-    if (selectedId) {
-      const comp = model.components.find((c: any) => c.id === selectedId);
-      if (comp) {
-        setChainFilter(calculateChainForComponent(model, selectedId));
-      }
-    }
-  }, [selectedId, model]);
 
   // Drag handlers
   const onDragStart = (type: "editor" | "palette", e: React.MouseEvent) => {

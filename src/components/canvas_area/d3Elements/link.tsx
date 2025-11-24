@@ -35,7 +35,8 @@ export function renderLinks(
       .attr("stroke-dasharray", linkStyle.style === "dashed" ? "6,3" : null)
       .attr("data-id", l.id)
       .attr("data-from", l.from)
-      .attr("data-to", l.to);
+      .attr("data-to", l.to)
+      .lower();
 
     if (l.label) {
       const mx = (sx + tx) / 2;
@@ -46,7 +47,8 @@ export function renderLinks(
         .attr("fill", "#222")
         .attr("font-size", 24)
         .attr("text-anchor", "middle")
-        .text(l.label);
+        .text(l.label)
+        .lower();
     }
   }
   return linkGroup;
