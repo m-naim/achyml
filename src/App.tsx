@@ -8,7 +8,8 @@ import sampleYaml from "../public/sample.yaml?url&raw";
 import { SvgChevron } from "./components/canvas_area/SvgChevron";
 import ChainFilter from "./components/canvas_area/ChainFilter";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
-import { applyChainFilter, calculateChainForComponent } from "./utils/chainFilterUtils";
+import { applyChainFilter } from "./utils/chainFilterUtils";
+import { useSidebarDrag } from "./utils/useSidebarDrag";
 
 export default function App() {
   const loadFromStorage = useStore((s) => s.loadFromStorage);
@@ -29,22 +30,22 @@ export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(true);
   const editorRef = useRef<HTMLDivElement>(null);
   const paletteRef = useRef<HTMLDivElement>(null);
-  const dragState = useRef<{
-    type: "editor" | "palette" | null;
-    startX: number;
-    startW: number;
-  }>({ type: null, startX: 0, startW: 0 });
+
+  const { onDragStart } = useSidebarDrag({
+    editorWidth,
+    setEditorWidth,
+    paletteWidth,
+    setPaletteWidth,
+  });
 
   useEffect(() => {
     loadFromStorage();
-    // if empty load sample
     if (!localStorage.getItem("achyml:model:v1")) {
       const res = setModelFromYaml(sampleYaml);
       if (!res.ok) setError(res.error ?? "Erreur chargement exemple");
     }
   }, []);
 
-  // Refactored handler
   const handleChainFilter = (filter: {
     active: boolean;
     elementIds: string[];
@@ -53,50 +54,13 @@ export default function App() {
     setChainFilter(filter);
   };
 
-  // Refactored chain filter application
   let filteredModel = model;
   if (chainFilter?.active && chainFilter.elementIds.length > 0) {
     filteredModel = applyChainFilter(model, chainFilter);
   }
 
-
-  // Drag handlers
-  const onDragStart = (type: "editor" | "palette", e: React.MouseEvent) => {
-    dragState.current = {
-      type,
-      startX: e.clientX,
-      startW: type === "editor" ? editorWidth : paletteWidth,
-    };
-    document.body.style.cursor = "col-resize";
-    window.addEventListener("mousemove", onDragMove);
-    window.addEventListener("mouseup", onDragEnd);
-  };
-  const onDragMove = (e: MouseEvent) => {
-    if (dragState.current.type === "editor") {
-      let w = Math.max(
-        260,
-        dragState.current.startW + (e.clientX - dragState.current.startX)
-      );
-      setEditorWidth(w);
-    }
-    if (dragState.current.type === "palette") {
-      let w = Math.max(
-        180,
-        dragState.current.startW - (e.clientX - dragState.current.startX)
-      );
-      setPaletteWidth(w);
-    }
-  };
-  const onDragEnd = () => {
-    dragState.current.type = null;
-    document.body.style.cursor = "";
-    window.removeEventListener("mousemove", onDragMove);
-    window.removeEventListener("mouseup", onDragEnd);
-  };
-
   return (
     <div className="app-grid">
-      {/* Editor sidebar */}
       <aside
         className="editor-area"
         ref={editorRef}
@@ -133,7 +97,7 @@ export default function App() {
           onClick={() => setEditorOpen(false)}
           title="Hide editor"
         >
-         <SvgChevron direction="right" />
+          <SvgChevron direction="right" />
         </button>
       </aside>
       {/* Show editor show button when hidden */}
@@ -148,7 +112,7 @@ export default function App() {
         </button>
       )}
       <main className="canvas-area">
-        {selectedId && (<ChainFilter onFilter={handleChainFilter} />)}
+        {selectedId && <ChainFilter onFilter={handleChainFilter} />}
 
         {!selectedId && (
           <button
@@ -165,8 +129,10 @@ export default function App() {
         </div>
       </main>
 
-      <aside className="palette" ref={paletteRef}
-      style={{
+      <aside
+        className="palette"
+        ref={paletteRef}
+        style={{
           minWidth: paletteOpen ? paletteWidth : 0,
           width: paletteOpen ? paletteWidth : 0,
           maxWidth: paletteOpen ? paletteWidth : 0,
@@ -201,19 +167,21 @@ export default function App() {
           }}
           onMouseDown={(e) => onDragStart("palette", e)}
         />
-         {paletteOpen &&<button
-          className="sidebar-hide-btn"
-          style={{
-            position: "absolute",
-            top: 12,
-            right: paletteWidth - 28,
-            zIndex: 101,
-          }}
-          onClick={() => setPaletteOpen(false)}
-          title="Hide palette"
-        >
-          <SvgChevron direction="left" />
-        </button>}
+        {paletteOpen && (
+          <button
+            className="sidebar-hide-btn"
+            style={{
+              position: "absolute",
+              top: 12,
+              right: paletteWidth - 28,
+              zIndex: 101,
+            }}
+            onClick={() => setPaletteOpen(false)}
+            title="Hide palette"
+          >
+            <SvgChevron direction="left" />
+          </button>
+        )}
       </aside>
 
       {!paletteOpen && (

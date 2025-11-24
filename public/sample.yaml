@@ -829,6 +829,15 @@ components:
         type: table
         name: reviews
         dependencies: []
+componentTypes:
+  - microservice
+  - mongodb
+  - sql
+  - api-gateway
+  - queue
+  - cache
+  - mainframe
+  - external
 style:
   component:
     default:

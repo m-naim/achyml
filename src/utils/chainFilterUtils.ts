@@ -24,37 +24,59 @@ export function applyChainFilter(model: any, chainFilter: ChainFilter) {
 
 /**
  * Given a model and a selected component id, returns a ChainFilter
- * covering all elements of that component and all their linked chains.
+ * covering all elements of that component and their upstream/downstream chains.
+ * Upstream: only include elements that are dependencies of the selected component's elements.
+ * Downstream: only include elements that depend on the selected component's elements.
  */
 export function calculateChainForComponent(model: any, compId: string): ChainFilter {
   const elementIds: string[] = [];
   const linkIds: string[] = [];
-  const visited: Set<string> = new Set();
+  const visitedDown: Set<string> = new Set();
+  const visitedUp: Set<string> = new Set();
 
-  // Collect all element ids of the selected component
+  // Get all element ids of the selected component
   const comp = (model.components || []).find((c: any) => c.id === compId);
   if (!comp || !Array.isArray(comp.elements)) return { active: false, elementIds: [], linkIds: [] };
+  const startElementIds = comp.elements.map((el: any) => el.id);
 
-  // Helper to recursively collect chains
-  function collectChain(elId: string) {
-    if (visited.has(elId)) return;
-    visited.add(elId);
+  // Downstream: follow links from the selected component's elements
+  function collectDownstream(elId: string) {
+    if (visitedDown.has(elId)) return;
+    visitedDown.add(elId);
     elementIds.push(elId);
     for (const link of model.links || []) {
       if (link.from === elId) {
         linkIds.push(link.id);
-        collectChain(link.to);
+        collectDownstream(link.to);
       }
     }
   }
 
-  for (const el of comp.elements) {
-    collectChain(el.id);
+  // Upstream: follow links to the selected component's elements
+  function collectUpstream(elId: string) {
+    if (visitedUp.has(elId)) return;
+    visitedUp.add(elId);
+    elementIds.push(elId);
+    for (const link of model.links || []) {
+      if (link.to === elId) {
+        linkIds.push(link.id);
+        collectUpstream(link.from);
+      }
+    }
   }
+
+  // Only collect for elements of the selected component
+  for (const elId of startElementIds) {
+    collectDownstream(elId);
+    collectUpstream(elId);
+  }
+
+  // Remove duplicates in elementIds
+  const uniqueElementIds = Array.from(new Set(elementIds));
 
   return {
     active: true,
-    elementIds,
+    elementIds: uniqueElementIds,
     linkIds,
   };
 }

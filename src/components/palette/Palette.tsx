@@ -3,8 +3,9 @@ import { useStore } from "../../store/store";
 
 export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean; onAdd?: () => void }) {
   const addComponent = useStore((s) => s.addComponent);
+  const componentTypes = useStore((s) => s.componentTypes);
   const [name, setName] = useState("new-service");
-  const [type, setType] = useState("microservice");
+  const [type, setType] = useState(componentTypes[0] ?? "microservice");
   const [level, setLevel] = useState(1);
   const [column, setColumn] = useState(1);
 
@@ -31,14 +32,9 @@ export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean;
         <label>
           Type
           <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="microservice">microservice</option>
-            <option value="mongodb">mongodb</option>
-            <option value="sql">database-sql</option>
-            <option value="api-gateway">api-gateway</option>
-            <option value="queue">queue</option>
-            <option value="cache">cache</option>
-            <option value="mainframe">mainframe</option>
-            <option value="external">external-api</option>
+            {componentTypes.map((type: string) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
         </label>
         <label>
@@ -53,7 +49,6 @@ export default function Palette({ onlyAdd = false, onAdd }: { onlyAdd?: boolean;
           <button onClick={doAdd}>Add component</button>
         </div>
       </div>
-
     </div>
   );
 }

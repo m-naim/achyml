@@ -5,7 +5,8 @@ export default function ComponentInfos({ comp }: any) {
   const updateComponent = useStore((s) => s.updateComponent);
   const removeComponent = useStore((s) => s.removeComponent);
   const select = useStore((s) => s.select);
-  
+  const componentTypes = useStore((s) => s.componentTypes);
+
   return (
     <div style={{ padding: 12 }}>
       <h4>Component Properties</h4>
@@ -27,14 +28,9 @@ export default function ComponentInfos({ comp }: any) {
             value={comp.type ?? ""}
             onChange={(e) => updateComponent(comp.id, { type: e.target.value })}
           >
-            <option value="microservice">microservice</option>
-            <option value="mongodb">mongodb</option>
-            <option value="sql">database-sql</option>
-            <option value="api-gateway">api-gateway</option>
-            <option value="queue">queue</option>
-            <option value="cache">cache</option>
-            <option value="mainframe">mainframe</option>
-            <option value="external">external-api</option>
+            {componentTypes.map((type: string) => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
         </label>
         <label>

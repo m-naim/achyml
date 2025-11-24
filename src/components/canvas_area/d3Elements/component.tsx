@@ -35,12 +35,12 @@ export function renderComponents(
       .attr("stroke-width", 1)
     .on('mouseover', function (d, i) {
           d3.select(this).transition()
-               .duration('50')
+               .duration(50)
                .attr('opacity', '.85');     
     })
     .on('mouseout', function (d, i) {
           d3.select(this).transition()
-               .duration('50')
+               .duration(50)
                .attr('opacity', '1');
     });
 
