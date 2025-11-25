@@ -25,7 +25,7 @@ export default function D3Canvas({ modelOverride }: { modelOverride?: Model }) {
   // Zoom control handlers
   const handleZoomIn = () => {
     if (ref.current && zoomRef.current) {
-      d3.select(ref.current).transition().duration(200).call(zoomRef.current.scaleBy, 10);
+      d3.select(ref.current).transition().duration(200).call(zoomRef.current.scaleBy, 2);
     }
   };
   const handleZoomOut = () => {

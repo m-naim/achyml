@@ -497,3 +497,61 @@ button:hover { opacity: 0.95; }
 .sidebar-hide-btn:hover, .sidebar-show-btn:hover {
   background: #e0e0e0;
 }
+
+.action-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.96); /* Figma-like: deep blue-gray */
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(25, 118, 210, 0.18);
+  padding: 2px 20px;
+  align-items: center;
+  border: 1px solid #1976d2;
+  width: auto;
+  min-width: 0;
+  max-width: 360px;
+  height: 44px;
+  backdrop-filter: blur(4px);
+}
+
+/* Optional: style for ActionBar buttons */
+.action-bar button {
+  background: transparent;
+  color: #e3f2fd;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 22px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  min-width: 0;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-bar button[disabled] {
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.action-bar button:hover:not([disabled]) {
+  background: rgba(25, 118, 210, 0.18);
+  color: #90caf9;
+}
+
+.action-bar .action-bar-sep {
+  color: #e3f2fd;
+  font-size: 20px;
+  margin: 0 6px;
+  opacity: 0.35;
+  user-select: none;
+}

@@ -5,11 +5,12 @@ import YamlEditor from "./components/editor/YamlEditor";
 import Palette from "./components/palette/Palette";
 import Properties from "./components/palette/Properties";
 import sampleYaml from "../public/sample.yaml?url&raw";
-import { SvgChevron } from "./components/canvas_area/SvgChevron";
-import ChainFilter from "./components/canvas_area/ChainFilter";
+// import { SvgChevron } from "./components/canvas_area/SvgChevron";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
 import { applyChainFilter } from "./utils/chainFilterUtils";
 import { useSidebarDrag } from "./utils/useSidebarDrag";
+import ActionBar from "./components/canvas_area/ActionBar";
 
 export default function App() {
   const loadFromStorage = useStore((s) => s.loadFromStorage);
@@ -30,6 +31,7 @@ export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(true);
   const editorRef = useRef<HTMLDivElement>(null);
   const paletteRef = useRef<HTMLDivElement>(null);
+  const select = useStore((s) => s.select);
 
   const { onDragStart } = useSidebarDrag({
     editorWidth,
@@ -52,6 +54,16 @@ export default function App() {
     linkIds: string[];
   }) => {
     setChainFilter(filter);
+  };
+
+  // ActionBar handlers
+  const handleActionChainFilter = () => {
+    if (selectedId) setChainFilter({ active: true, elementIds: [], linkIds: [] });
+  };
+
+  const handleActionAddComponent = () => {
+    select(null);
+    setShowPaletteAdd(true)
   };
 
   let filteredModel = model;
@@ -97,7 +109,7 @@ export default function App() {
           onClick={() => setEditorOpen(false)}
           title="Hide editor"
         >
-          <SvgChevron direction="right" />
+          <ChevronLeft size={20} />
         </button>
       </aside>
       {/* Show editor show button when hidden */}
@@ -108,20 +120,18 @@ export default function App() {
           onClick={() => setEditorOpen(true)}
           title="Show editor"
         >
-          <SvgChevron direction="left" />
+          <ChevronRight size={20} />
         </button>
       )}
       <main className="canvas-area">
-        {selectedId && <ChainFilter onFilter={handleChainFilter} />}
-
-        {!selectedId && (
-          <button
-            className="add-component-btn"
-            onClick={() => setShowPaletteAdd(true)}
-          >
-            + Add Component
-          </button>
-        )}
+        <ActionBar
+          onChainFilter={handleChainFilter}
+          onAddComponent={handleActionAddComponent}
+          chainFilterActive={!!chainFilter?.active}
+          selectedId={selectedId}
+          onDeselect={() => select(null)}
+        />
+        
         <div className="compare-grid">
           <div className="canvas-compare right">
             <D3Canvas modelOverride={filteredModel} />
@@ -146,7 +156,7 @@ export default function App() {
         </button>
 
         {selectedId && <Properties />}
-        {showPaletteAdd && (
+        {!selectedId && showPaletteAdd && (
           <Palette onlyAdd={true} onAdd={() => setShowPaletteAdd(false)} />
         )}
         {/* Modal for Swagger Import */}
@@ -179,7 +189,7 @@ export default function App() {
             onClick={() => setPaletteOpen(false)}
             title="Hide palette"
           >
-            <SvgChevron direction="left" />
+            <ChevronRight size={20} />
           </button>
         )}
       </aside>
@@ -191,7 +201,7 @@ export default function App() {
           onClick={() => setPaletteOpen(true)}
           title="Show palette"
         >
-          <SvgChevron direction="right" />
+          <ChevronLeft size={20} />
         </button>
       )}
     </div>

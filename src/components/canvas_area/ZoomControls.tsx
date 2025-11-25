@@ -1,10 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { ZoomIn, ZoomOut, RefreshCcw } from "lucide-react";
 
 export function ZoomControls({ onZoomIn, onZoomOut, onZoomReset }: {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onZoomReset: () => void;
 }) {
+  // Keyboard shortcuts: + (zoom in), - (zoom out), 0 (reset)
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "+" || e.key === "=") {
+        onZoomIn();
+      }
+      if (e.key === "-") {
+        onZoomOut();
+      }
+      if (e.key === "0") {
+        onZoomReset();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onZoomIn, onZoomOut, onZoomReset]);
+
   return (
     <div style={{
       position: "absolute",
@@ -20,33 +38,25 @@ export function ZoomControls({ onZoomIn, onZoomOut, onZoomReset }: {
       padding: 6
     }}>
       <button
-        title="Zoom In"
+        title="Zoom In (+)"
         style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
         onClick={onZoomIn}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <rect x="10" y="4" width="4" height="16" rx="2" fill="#1976d2"/>
-          <rect x="4" y="10" width="16" height="4" rx="2" fill="#1976d2"/>
-        </svg>
+        <ZoomIn color="#1976d2" size={24} />
       </button>
       <button
-        title="Zoom Out"
+        title="Zoom Out (-)"
         style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
         onClick={onZoomOut}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <rect x="4" y="10" width="16" height="4" rx="2" fill="#1976d2"/>
-        </svg>
+        <ZoomOut color="#1976d2" size={24} />
       </button>
       <button
-        title="Reset View"
+        title="Reset View (0)"
         style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
         onClick={onZoomReset}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="#1976d2" strokeWidth="2" fill="none"/>
-          <path d="M12 8v4l3 3" stroke="#1976d2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-        </svg>
+        <RefreshCcw color="#1976d2" size={24} />
       </button>
     </div>
   );
