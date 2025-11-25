@@ -84,7 +84,7 @@ export default function ElementsInfos({ el , parentComp}: any) {
                         ?.elements || []
                     ).map((e) => (
                       <option key={e.id} value={e.id}>
-                        {e.name}
+                        {e.type === "route" ? e.method + " " + e.path : e.name}
                       </option>
                     ))}
                   </select>
