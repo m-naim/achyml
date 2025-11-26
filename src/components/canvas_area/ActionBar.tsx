@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useStore } from "../../store/store";
 import { calculateChainForComponent } from "../../utils/chainFilterUtils";
 import { LinkItem } from "../../types";
-import { Link2, Plus, X } from "lucide-react";
+import { Link2, Plus, X, Search } from "lucide-react";
+import "./ActionBar.css"; // <-- import the new CSS file
 
 function getChainIds(startId: string, links: LinkItem[]) {
   const upstream = new Set<string>();
@@ -67,7 +68,12 @@ export default function ActionBar({
   onDeselect?: () => void;
 }) {
   const model = useStore((s) => s.model);
+  const select = useStore((s) => s.select);
   const [active, setActive] = useState(false);
+
+  // Search state for ActionBar
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
 
   // Determine if selectedId is a component or element
   const comp = model.components.find((c: any) => c.id === selectedId);
@@ -105,6 +111,47 @@ export default function ActionBar({
     return () => window.removeEventListener("keydown", handleKey);
   }, [selectedId, active, onAddComponent, onDeselect]);
 
+  // Search handler: filter components and elements by name/id/path/method
+  useEffect(() => {
+    if (!searchTerm) {
+      setSearchResults([]);
+      return;
+    }
+    const results: any[] = [];
+    for (const comp of model.components || []) {
+      if (
+        comp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        comp.id?.toLowerCase().includes(searchTerm.toLowerCase())
+      ) {
+        results.push({ type: "component", id: comp.id, name: comp.name });
+      }
+      for (const el of comp.elements || []) {
+        if (
+          el.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          el.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          el.path?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          el.method?.toLowerCase().includes(searchTerm.toLowerCase())
+        ) {
+          results.push({
+            type: "element",
+            id: el.id,
+            name: el.name ?? el.path ?? el.id,
+            parentComp: comp.id,
+          });
+        }
+      }
+    }
+    setSearchResults(results);
+  }, [searchTerm, model]);
+
+  // Select and zoom handler
+  const handleSearchSelect = (item: any) => {
+    select(item.id);
+    setSearchTerm("");
+    setSearchResults([]);
+    // Optionally, trigger zoom/focus logic here (e.g., center D3 view on item)
+  };
+
   const handleChainFilterClick = () => {
     const newActive = !active;
     setActive(newActive);
@@ -112,22 +159,46 @@ export default function ActionBar({
   };
   return (
     <div className="action-bar">
+      <div className="action-bar-search">
+        <Search size={18} className="action-bar-search-icon" />
+        <input
+          type="text"
+          className="action-bar-search-input"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchResults.length > 0 && (
+          <div className="action-bar-search-results">
+            {searchResults.map((item, idx) => (
+              <div
+                key={item.id + idx}
+                className={`action-bar-search-result${
+                  idx % 2 === 0 ? " even" : ""
+                }`}
+                onClick={() => handleSearchSelect(item)}
+              >
+                {item.type === "component" ? (
+                  <b>🧩 {item.name}</b>
+                ) : (
+                  <>
+                    <span>🔹 {item.name}</span>
+                    <span className="action-bar-search-result-parent">
+                      ({item.parentComp})
+                    </span>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <span className="action-bar-sep">|</span>
       <button
         title="Show chain filter (C)"
-        style={{
-          background: chainFilterActive ? "#1976d2" : "#e3f2fd",
-          color: chainFilterActive ? "#fff" : "#1976d2",
-          border: "none",
-          borderRadius: 6,
-          padding: "6px 14px",
-          fontWeight: 600,
-          fontSize: 18,
-          cursor: selectedId ? "pointer" : "not-allowed",
-          opacity: selectedId ? 1 : 0.6,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className={`action-bar-btn${
+          chainFilterActive ? " active" : ""
+        }`}
         onClick={handleChainFilterClick}
         disabled={!selectedId}
       >
@@ -136,18 +207,7 @@ export default function ActionBar({
       <span className="action-bar-sep">|</span>
       <button
         title="Add component (A)"
-        style={{
-          color: "#fff",
-          border: "none",
-          borderRadius: 6,
-          padding: "6px 14px",
-          fontWeight: 600,
-          fontSize: 18,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        className="action-bar-btn"
         onClick={onAddComponent}
       >
         <Plus size={22} />
@@ -155,35 +215,11 @@ export default function ActionBar({
       {selectedId && (
         <>
           <span className="action-bar-sep">|</span>
-          <span
-            style={{
-              color: "#e3f2fd",
-              fontSize: 14,
-              fontWeight: 600,
-              background: "rgba(25,118,210,0.12)",
-              borderRadius: 6,
-              padding: "2px 10px",
-              marginLeft: 2,
-              marginRight: 2,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-            }}
-          >
-            {selectedId}
+          <span className="action-bar-selected">
+            <span className="action-bar-selected-id">{selectedId}</span>
             <button
               title="Deselect"
-              style={{
-                background: "transparent",
-                color: "#90caf9",
-                border: "none",
-                fontSize: 18,
-                marginLeft: 6,
-                cursor: "pointer",
-                padding: 0,
-                display: "flex",
-                alignItems: "center",
-              }}
+              className="action-bar-deselect-btn"
               onClick={onDeselect}
             >
               <X size={18} />

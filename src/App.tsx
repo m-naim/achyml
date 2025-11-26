@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useStore } from "./store/store";
-import D3Canvas from "./components/canvas_area/D3Canvas";
+import D3Canvas, { D3CanvasHandle } from "./components/canvas_area/D3Canvas";
 import YamlEditor from "./components/editor/YamlEditor";
 import Palette from "./components/palette/Palette";
 import Properties from "./components/palette/Properties";
 import sampleYaml from "../public/sample.yaml?url&raw";
 // import { SvgChevron } from "./components/canvas_area/SvgChevron";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
 import { applyChainFilter } from "./utils/chainFilterUtils";
 import { useSidebarDrag } from "./utils/useSidebarDrag";
@@ -32,6 +32,7 @@ export default function App() {
   const editorRef = useRef<HTMLDivElement>(null);
   const paletteRef = useRef<HTMLDivElement>(null);
   const select = useStore((s) => s.select);
+  const d3CanvasRef = useRef<D3CanvasHandle>(null);
 
   const { onDragStart } = useSidebarDrag({
     editorWidth,
@@ -56,20 +57,26 @@ export default function App() {
     setChainFilter(filter);
   };
 
-  // ActionBar handlers
-  const handleActionChainFilter = () => {
-    if (selectedId) setChainFilter({ active: true, elementIds: [], linkIds: [] });
-  };
 
   const handleActionAddComponent = () => {
     select(null);
     setShowPaletteAdd(true)
   };
 
+
+
+
   let filteredModel = model;
   if (chainFilter?.active && chainFilter.elementIds.length > 0) {
     filteredModel = applyChainFilter(model, chainFilter);
   }
+
+  // Zoom to selectedId when it changes
+  useEffect(() => {
+    if (selectedId && d3CanvasRef.current) {
+      d3CanvasRef.current.zoomToElement(selectedId);
+    }
+  }, [selectedId]);
 
   return (
     <div className="app-grid">
@@ -124,6 +131,7 @@ export default function App() {
         </button>
       )}
       <main className="canvas-area">
+
         <ActionBar
           onChainFilter={handleChainFilter}
           onAddComponent={handleActionAddComponent}
@@ -134,7 +142,7 @@ export default function App() {
         
         <div className="compare-grid">
           <div className="canvas-compare right">
-            <D3Canvas modelOverride={filteredModel} />
+            <D3Canvas ref={d3CanvasRef} modelOverride={filteredModel} />
           </div>
         </div>
       </main>
