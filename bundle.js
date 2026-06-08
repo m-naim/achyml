@@ -146,9 +146,37 @@ function bundle() {
       }
     }
 
+    // De-duplicate components by ID
+    const uniqueComponents = [];
+    const seenCompIds = new Set();
+    for (const comp of allComponents) {
+      if (comp && comp.id) {
+        if (!seenCompIds.has(comp.id)) {
+          seenCompIds.add(comp.id);
+          uniqueComponents.push(comp);
+        }
+      } else if (comp) {
+        uniqueComponents.push(comp);
+      }
+    }
+
+    // De-duplicate links by ID
+    const uniqueLinks = [];
+    const seenLinkIds = new Set();
+    for (const link of allLinks) {
+      if (link && link.id) {
+        if (!seenLinkIds.has(link.id)) {
+          seenLinkIds.add(link.id);
+          uniqueLinks.push(link);
+        }
+      } else if (link) {
+        uniqueLinks.push(link);
+      }
+    }
+
     const finalDoc = { ...mainDoc };
-    finalDoc.components = allComponents;
-    finalDoc.links = allLinks;
+    finalDoc.components = uniqueComponents;
+    finalDoc.links = uniqueLinks;
 
     // Write output file to public/sample.yaml
     const bundledYaml = yaml.dump(finalDoc, { noRefs: true, lineWidth: -1 });

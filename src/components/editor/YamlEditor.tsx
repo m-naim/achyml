@@ -219,9 +219,37 @@ async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ nam
       }
     }
 
+    // De-duplicate components by ID
+    const uniqueComponents: any[] = [];
+    const seenCompIds = new Set<string>();
+    for (const comp of allComponents) {
+      if (comp && comp.id) {
+        if (!seenCompIds.has(comp.id)) {
+          seenCompIds.add(comp.id);
+          uniqueComponents.push(comp);
+        }
+      } else if (comp) {
+        uniqueComponents.push(comp);
+      }
+    }
+
+    // De-duplicate links by ID
+    const uniqueLinks: any[] = [];
+    const seenLinkIds = new Set<string>();
+    for (const link of allLinks) {
+      if (link && link.id) {
+        if (!seenLinkIds.has(link.id)) {
+          seenLinkIds.add(link.id);
+          uniqueLinks.push(link);
+        }
+      } else if (link) {
+        uniqueLinks.push(link);
+      }
+    }
+
     const finalDoc = { ...mainDoc };
-    finalDoc.components = allComponents;
-    finalDoc.links = allLinks;
+    finalDoc.components = uniqueComponents;
+    finalDoc.links = uniqueLinks;
 
     return { ok: true, model: finalDoc };
   } catch (err: any) {
