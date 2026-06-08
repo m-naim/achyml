@@ -6,6 +6,8 @@ export default function YamlEditorToolbar({
   onImport,
   useLocalFile,
   onToggleLocalFile,
+  localFileTarget,
+  onChangeLocalFileTarget,
   dirSyncActive,
 }: {
   onApply: () => void;
@@ -13,6 +15,8 @@ export default function YamlEditorToolbar({
   onImport: () => void;
   useLocalFile: boolean;
   onToggleLocalFile: (val: boolean) => void;
+  localFileTarget: string;
+  onChangeLocalFileTarget: (val: string) => void;
   dirSyncActive: boolean;
 }) {
   const isDisabled = useLocalFile || dirSyncActive;
@@ -24,25 +28,45 @@ export default function YamlEditorToolbar({
         <button onClick={onExport}>Export YAML</button>
         <button onClick={() => onImport()} disabled={isDisabled}>Import YAML/JSON</button>
       </div>
-      <label style={{ 
+      
+      <div style={{ 
         display: "flex", 
         alignItems: "center", 
-        gap: 6, 
+        gap: 8, 
         fontSize: 12, 
         color: "#e3f2fd", 
-        cursor: dirSyncActive ? "not-allowed" : "pointer", 
-        userSelect: "none",
-        opacity: dirSyncActive ? 0.5 : 1
+        opacity: dirSyncActive ? 0.5 : 1,
+        pointerEvents: dirSyncActive ? "none" : "auto"
       }}>
-        <input
-          type="checkbox"
-          checked={useLocalFile}
-          disabled={dirSyncActive}
-          onChange={(e) => onToggleLocalFile(e.target.checked)}
-          style={{ cursor: dirSyncActive ? "not-allowed" : "pointer" }}
-        />
-        <span>Sync with <code>public/sample.yaml</code></span>
-      </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", userSelect: "none" }}>
+          <input
+            type="checkbox"
+            checked={useLocalFile}
+            onChange={(e) => onToggleLocalFile(e.target.checked)}
+            style={{ cursor: "pointer" }}
+          />
+          <span>Sync with:</span>
+        </label>
+        {useLocalFile && (
+          <select
+            value={localFileTarget}
+            onChange={(e) => onChangeLocalFileTarget(e.target.value)}
+            style={{
+              padding: "4px 8px",
+              fontSize: 11,
+              background: "#0f172a",
+              color: "#90caf9",
+              border: "1px solid rgba(144, 202, 249, 0.3)",
+              borderRadius: 6,
+              outline: "none",
+              cursor: "pointer"
+            }}
+          >
+            <option value="sample.yaml">Complexe E-commerce (sample.yaml)</option>
+            <option value="main-bundled.yaml">Modulaire / Multi-fichiers (main-bundled.yaml)</option>
+          </select>
+        )}
+      </div>
     </div>
   );
 }

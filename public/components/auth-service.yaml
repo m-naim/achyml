@@ -8,3 +8,64 @@ elements:
     type: route
     method: POST
     path: /login
+style:
+  component:
+    default:
+      background: '#f8fafc'
+      border: '#222'
+      borderRadius: 16
+      fontColor: '#222'
+      fontSize: 14
+    microservice:
+      background: '#e0f7fa'
+      border: '#a7b0dbff'
+    sql:
+      background: '#f3e5f5'
+      border: '#8e24aa'
+    mongodb:
+      background: '#e8f5e9'
+      border: '#388e3c'
+    api-gateway:
+      background: '#fffde7'
+      border: '#fbc02d'
+    queue:
+      background: '#e1f5fe'
+      border: '#0288d1'
+    cache:
+      background: '#fbe9e7'
+      border: '#d84315'
+    external:
+      background: '#f5f5f5'
+      border: '#616161'
+  element:
+    default:
+      background: '#e0e0e0'
+      fontColor: '#222'
+    route:
+      background: '#34d399'
+      fontColor: '#fff'
+    GET:
+      background: '#61affe'
+      fontColor: '#fff'
+    POST:
+      background: '#49cc90'
+      fontColor: '#fff'
+    PUT:
+      background: '#fca130'
+      fontColor: '#fff'
+    DELETE:
+      background: '#f93e3e'
+      fontColor: '#fff'
+    PATCH:
+      background: '#50e3c2'
+      fontColor: '#fff'
+    HEAD:
+      background: '#9012fe'
+      fontColor: '#fff'
+    OPTIONS:
+      background: '#0d5aa7'
+      fontColor: '#fff'
+    TRACE:
+      background: '#bada55'
+      fontColor: '#222'
+

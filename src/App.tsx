@@ -49,15 +49,24 @@ export default function App() {
     return localStorage.getItem("achyml:use_local_file") === "true";
   });
 
+  const [localFileTarget, setLocalFileTarget] = useState<string>(() => {
+    return localStorage.getItem("achyml:local_file_target") || "sample.yaml";
+  });
+
   const handleToggleLocalFile = (val: boolean) => {
     localStorage.setItem("achyml:use_local_file", String(val));
     setUseLocalFile(val);
   };
 
+  const handleToggleLocalFileTarget = (val: string) => {
+    localStorage.setItem("achyml:local_file_target", val);
+    setLocalFileTarget(val);
+  };
+
   useEffect(() => {
     if (useLocalFile) {
       setError(null);
-      fetch(`/sample.yaml?t=${Date.now()}`)
+      fetch(`/${localFileTarget}?t=${Date.now()}`)
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP status: ${res.status}`);
           return res.text();
@@ -67,7 +76,7 @@ export default function App() {
           if (!res.ok) setError(res.error ?? "Erreur chargement exemple");
         })
         .catch((err) => {
-          setError("Erreur chargement fichier local: " + err.message);
+          setError(`Erreur chargement fichier local (${localFileTarget}): ` + err.message);
         });
     } else {
       loadFromStorage();
@@ -76,7 +85,7 @@ export default function App() {
         if (!res.ok) setError(res.error ?? "Erreur chargement exemple");
       }
     }
-  }, [useLocalFile]);
+  }, [useLocalFile, localFileTarget]);
 
   const handleChainFilter = (filter: {
     active: boolean;
@@ -189,7 +198,12 @@ export default function App() {
           display: editorOpen ? "flex" : "none",
         }}
       >
-        <YamlEditor useLocalFile={useLocalFile} onToggleLocalFile={handleToggleLocalFile} />
+        <YamlEditor 
+          useLocalFile={useLocalFile} 
+          onToggleLocalFile={handleToggleLocalFile}
+          localFileTarget={localFileTarget}
+          onChangeLocalFileTarget={handleToggleLocalFileTarget}
+        />
         {error && <div className="error">{error}</div>}
         <div
           className="sidebar-resize-handle"

@@ -217,9 +217,11 @@ async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ nam
   }
 }
 
-export default function YamlEditor({ useLocalFile, onToggleLocalFile }: {
+export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileTarget, onChangeLocalFileTarget }: {
   useLocalFile: boolean;
   onToggleLocalFile: (val: boolean) => void;
+  localFileTarget: string;
+  onChangeLocalFileTarget: (val: string) => void;
 }) {
   const store = useStore();
   const [text, setText] = useState(store.toYaml());
@@ -460,6 +462,8 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile }: {
         onImport={importFile}
         useLocalFile={useLocalFile}
         onToggleLocalFile={onToggleLocalFile}
+        localFileTarget={localFileTarget}
+        onChangeLocalFileTarget={onChangeLocalFileTarget}
         dirSyncActive={!!selectedFileHandle}
       />
       

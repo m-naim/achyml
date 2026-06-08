@@ -6,7 +6,7 @@ const yaml = require('js-yaml');
 const SRC_DIR = path.join(__dirname, 'schema-src');
 const MAIN_FILE = path.join(SRC_DIR, 'main.yaml');
 const COMP_DIR = path.join(SRC_DIR, 'components');
-const OUTPUT_FILE = path.join(__dirname, 'public/sample.yaml');
+const OUTPUT_FILE = path.join(__dirname, 'public/main-bundled.yaml');
 
 function bundle() {
   try {

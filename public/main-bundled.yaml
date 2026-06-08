@@ -1,0 +1,29 @@
+version: 1
+resources:
+  - ./components/auth-service.yaml
+  - ./components/user-service.yaml
+links:
+  - id: dep-route-login-to-user-get
+    from: route-login
+    to: user-get
+components:
+  - id: svc-auth
+    type: microservice
+    name: auth-service
+    level: 3
+    column: 1
+    elements:
+      - id: route-login
+        type: route
+        method: POST
+        path: /login
+  - id: svc-user
+    type: microservice
+    name: user-service
+    level: 3
+    column: 2
+    elements:
+      - id: user-get
+        type: route
+        method: GET
+        path: /users/:id
