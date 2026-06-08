@@ -32,62 +32,186 @@ async function scanDirectory(dirHandle: any): Promise<Array<{ name: string; hand
   return list;
 }
 
+function normalizePath(p: string): string {
+  return p.replace(/\\/g, '/').replace(/^\.\//, '');
+}
+
+function resolveRelativePath(currentFilePath: string, referencedPath: string): string {
+  const normalizedCurrent = normalizePath(currentFilePath);
+  const normalizedRef = referencedPath.replace(/\\/g, '/');
+  
+  if (normalizedRef.startsWith('/')) {
+    return normalizedRef.substring(1);
+  }
+  
+  const lastSlash = normalizedCurrent.lastIndexOf('/');
+  const currentDir = lastSlash !== -1 ? normalizedCurrent.substring(0, lastSlash) : "";
+  
+  const dirSegments = currentDir ? currentDir.split('/') : [];
+  const refSegments = normalizedRef.split('/');
+  
+  const resultSegments = [...dirSegments];
+  for (const segment of refSegments) {
+    if (segment === "." || segment === "") {
+      continue;
+    }
+    if (segment === "..") {
+      resultSegments.pop();
+    } else {
+      resultSegments.push(segment);
+    }
+  }
+  return resultSegments.join('/');
+}
+
 async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ name: string; handle: any }>): Promise<{ ok: boolean; model?: any; error?: string }> {
   try {
-    const mainItem = filesList.find(f => f.name === mainFileName);
+    const mainItem = filesList.find(f => normalizePath(f.name) === normalizePath(mainFileName));
     if (!mainItem) {
       return { ok: false, error: `Main file '${mainFileName}' not found.` };
     }
 
-    // 1. Read and parse main file
-    const mainFile = await mainItem.handle.getFile();
-    const mainText = await mainFile.text();
-    let mainDoc: any;
-    try {
-      if (mainFileName.endsWith(".json")) {
-        mainDoc = JSON.parse(mainText);
-      } else {
-        mainDoc = jsYaml.load(mainText);
+    const allComponents: any[] = [];
+    const allLinks: any[] = [];
+    const visited = new Set<string>();
+
+    function extractComponents(parsedDoc: any): any[] {
+      if (!parsedDoc) return [];
+      if (Array.isArray(parsedDoc)) {
+        return parsedDoc.flatMap(extractComponents);
       }
-    } catch (e: any) {
-      return { ok: false, error: `Parse error in main file: ${e.message}` };
+      const comps: any[] = [];
+      if (parsedDoc.components && Array.isArray(parsedDoc.components)) {
+        comps.push(...parsedDoc.components.filter((c: any) => c && typeof c === "object"));
+      }
+      if (parsedDoc.id && parsedDoc.type) {
+        comps.push(parsedDoc);
+      }
+      return comps;
     }
 
-    if (!mainDoc) {
-      mainDoc = {};
+    function extractLinks(parsedDoc: any): any[] {
+      if (!parsedDoc) return [];
+      if (Array.isArray(parsedDoc)) {
+        return parsedDoc.flatMap(extractLinks);
+      }
+      const links: any[] = [];
+      if (parsedDoc.links && Array.isArray(parsedDoc.links)) {
+        links.push(...parsedDoc.links.filter((l: any) => l && typeof l === "object"));
+      }
+      return links;
     }
 
-    mainDoc.components = mainDoc.components || [];
+    async function resolveFile(filePath: string): Promise<any> {
+      const normalized = normalizePath(filePath);
+      if (visited.has(normalized)) return null;
+      visited.add(normalized);
 
-    // 2. Read and parse all other files (component files)
-    for (const item of filesList) {
-      if (item.name === mainFileName) continue;
-      
+      const item = filesList.find(f => normalizePath(f.name) === normalized);
+      if (!item) {
+        throw new Error(`File '${filePath}' not found in the selected folder.`);
+      }
+
+      const file = await item.handle.getFile();
+      const text = await file.text();
+      let doc: any;
       try {
-        const file = await item.handle.getFile();
-        const text = await file.text();
-        let doc: any;
-        if (item.name.endsWith(".json")) {
+        if (normalized.endsWith(".json")) {
           doc = JSON.parse(text);
         } else {
           doc = jsYaml.load(text);
         }
+      } catch (e: any) {
+        throw new Error(`Parse error in '${filePath}': ${e.message}`);
+      }
 
-        if (doc) {
-          if (Array.isArray(doc)) {
-            mainDoc.components.push(...doc);
-          } else if (doc.components && Array.isArray(doc.components)) {
-            mainDoc.components.push(...doc.components);
-          } else if (doc.id) {
-            mainDoc.components.push(doc);
+      if (!doc) return null;
+
+      // Extract inline components and links
+      if (Array.isArray(doc)) {
+        for (const element of doc) {
+          if (element && typeof element === "object") {
+            if (element.id && element.type) {
+              allComponents.push(element);
+            } else {
+              allComponents.push(...extractComponents(element));
+              allLinks.push(...extractLinks(element));
+            }
           }
         }
-      } catch (err: any) {
-        console.warn(`Skipped bundling file ${item.name}:`, err);
+      } else {
+        if (doc.components && Array.isArray(doc.components)) {
+          const inlineComps = doc.components.filter((c: any) => c && typeof c === "object");
+          allComponents.push(...inlineComps);
+        }
+        if (doc.links && Array.isArray(doc.links)) {
+          allLinks.push(...doc.links);
+        }
+        if (doc.id && doc.type) {
+          allComponents.push(doc);
+        }
+      }
+
+      // Collect references
+      const references: string[] = [];
+      if (!Array.isArray(doc)) {
+        if (doc.resources && Array.isArray(doc.resources)) {
+          references.push(...doc.resources.filter((r: any) => typeof r === "string"));
+        }
+        if (doc.imports && Array.isArray(doc.imports)) {
+          references.push(...doc.imports.filter((r: any) => typeof r === "string"));
+        }
+        if (doc.include && Array.isArray(doc.include)) {
+          references.push(...doc.include.filter((r: any) => typeof r === "string"));
+        }
+        if (doc.components && Array.isArray(doc.components)) {
+          references.push(...doc.components.filter((c: any) => typeof c === "string"));
+        }
+      }
+
+      // Resolve references relative to the current file
+      for (const ref of references) {
+        const resolvedPath = resolveRelativePath(normalized, ref);
+        await resolveFile(resolvedPath);
+      }
+
+      return doc;
+    }
+
+    const mainDoc = await resolveFile(mainFileName);
+    if (!mainDoc) {
+      return { ok: false, error: `Main file '${mainFileName}' is empty or invalid.` };
+    }
+
+    // Fallback: If only the main file was visited (meaning it contains no string references to other files),
+    // and there are other files in filesList, we fall back to the old behavior (bundling all files).
+    if (visited.size === 1 && filesList.length > 1) {
+      for (const item of filesList) {
+        if (normalizePath(item.name) === normalizePath(mainFileName)) continue;
+        try {
+          const file = await item.handle.getFile();
+          const text = await file.text();
+          let doc: any;
+          if (item.name.endsWith(".json")) {
+            doc = JSON.parse(text);
+          } else {
+            doc = jsYaml.load(text);
+          }
+          if (doc) {
+            allComponents.push(...extractComponents(doc));
+            allLinks.push(...extractLinks(doc));
+          }
+        } catch (err: any) {
+          console.warn(`Skipped fallback bundling file ${item.name}:`, err);
+        }
       }
     }
 
-    return { ok: true, model: mainDoc };
+    const finalDoc = { ...mainDoc };
+    finalDoc.components = allComponents;
+    finalDoc.links = allLinks;
+
+    return { ok: true, model: finalDoc };
   } catch (err: any) {
     return { ok: false, error: err.message };
   }
