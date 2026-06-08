@@ -1,0 +1,10 @@
+id: svc-user
+type: microservice
+name: user-service
+level: 3
+column: 2
+elements:
+  - id: user-get
+    type: route
+    method: GET
+    path: /users/:id

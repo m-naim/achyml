@@ -1,4 +1,7 @@
 version: 1
+resources:
+  - ./components/auth-service.yaml
+  - ./components/user-service.yaml
 links:
   - id: dep-route-login-to-user-get
     from: route-login

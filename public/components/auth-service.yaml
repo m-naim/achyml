@@ -1,0 +1,10 @@
+id: svc-auth
+type: microservice
+name: auth-service
+level: 3
+column: 1
+elements:
+  - id: route-login
+    type: route
+    method: POST
+    path: /login
