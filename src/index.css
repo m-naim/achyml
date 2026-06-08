@@ -224,6 +224,60 @@ button:hover { opacity: 0.95; }
   margin-bottom: 8px;
 }
 
+.yaml-editor-toolbar button {
+  padding: 5px 12px;
+  background: rgba(30, 41, 59, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.yaml-editor-toolbar button:hover:not([disabled]) {
+  background: rgba(51, 65, 85, 0.95);
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.15);
+}
+
+.yaml-editor-toolbar button:active:not([disabled]) {
+  transform: translateY(1px) scale(0.98);
+}
+
+.yaml-editor-toolbar button[disabled] {
+  background: rgba(15, 23, 42, 0.25);
+  border-color: rgba(148, 163, 184, 0.08);
+  color: rgba(148, 163, 184, 0.35);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.yaml-editor-toolbar select {
+  padding: 4px 8px;
+  font-size: 11px;
+  background: rgba(15, 23, 42, 0.85);
+  color: #90caf9;
+  border: 1px solid rgba(144, 202, 249, 0.3);
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.yaml-editor-toolbar select:hover {
+  border-color: rgba(144, 202, 249, 0.65);
+  color: #fff;
+  box-shadow: 0 0 8px rgba(144, 202, 249, 0.15);
+}
+
 /* ensure Monaco editor takes full height */
 .monaco-editor {
   height: 100% !important;
