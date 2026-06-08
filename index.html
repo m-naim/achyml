@@ -160,7 +160,7 @@
       /* Features section */
       .features {
         max-width: 1100px;
-        margin: 80px auto;
+        margin: 60px auto 40px auto;
         padding: 0 24px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -199,6 +199,101 @@
         line-height: 1.5;
         color: var(--text-secondary);
         margin: 0;
+      }
+
+      /* Why achyml section (problems & solutions) */
+      .problems-section {
+        max-width: 1100px;
+        margin: 80px auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      .problems-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0 0 10px 0;
+      }
+
+      .problems-section h2 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .section-tagline {
+        font-size: 16px;
+        color: var(--text-secondary);
+        margin: 0 0 40px 0;
+      }
+
+      .problems-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .problem-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(12px);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .problem-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        width: fit-content;
+        margin-bottom: 12px;
+      }
+
+      .problem-badge.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .problem-badge.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        margin-top: 12px;
+      }
+
+      .problem-card h3 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: #fff;
+      }
+
+      .problem-card p {
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      .arrow-divider {
+        color: rgba(148, 163, 184, 0.4);
+        font-size: 18px;
+        text-align: center;
+        margin: 12px 0 0 0;
+      }
+
+      .solution-text {
+        color: #e2e8f0 !important;
       }
 
       /* Code block section */
@@ -345,6 +440,41 @@
           In-Browser Bundler
         </h3>
         <p>Specify a main schema entry point and watch the browser compile all your separate component definitions into a unified diagram.</p>
+      </div>
+    </section>
+
+    <!-- Why achyml? (Problems and Solutions) -->
+    <section class="problems-section">
+      <h2>Why <span>achyml</span>?</h2>
+      <p class="section-tagline">Traditional software architecture diagrams are broken. Here is how we fix them.</p>
+      
+      <div class="problems-grid">
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Static & Outdated Drawings</h3>
+          <p>Diagrams drawn on Miro, Figma, or Lucidchart are static drawings. They get outdated the moment your code changes because manually moving boxes and shapes is tedious.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Architecture as Code (AaC).</b> Declare components in simple YAML files inside your repository. Your diagram stays fully synchronized with your codebase.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Manual "Pixel-Pushing" Mess</h3>
+          <p>Developers waste hours grid-snapping boxes, routing links, and restructuring layouts just to insert a single new service in the middle of a diagram.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Automated Layered Layout.</b> Position components using logical vertical <code>level</code> layers and horizontal <code>column</code> ordering. The grid engine aligns and links everything automatically.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Ambiguous "Box-to-Box" Links</h3>
+          <p>Standard diagrams only connect box-to-box (Service A speaks to Service B), hiding which specific API endpoints route data to which database tables.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Fine-Grained Tracing.</b> Link route endpoints directly to database tables. Collapse components for overview, or trace complete dependency chains in one click.</p>
+        </div>
       </div>
     </section>
 
