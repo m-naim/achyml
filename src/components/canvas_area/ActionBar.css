@@ -1,44 +1,78 @@
 .action-bar {
   position: absolute;
   left: 50%;
-  bottom: 32px;
+  bottom: 24px;
   transform: translateX(-50%);
   z-index: 300;
   display: flex;
-  gap: 8px;
-  background: rgba(30, 41, 59, 0.96);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(15, 23, 42, 0.78);
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(25, 118, 210, 0.18);
-  padding: 2px 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(25, 118, 210, 0.15);
+  padding: 4px 10px;
   align-items: center;
-  border: 1px solid #1976d2;
-  width: auto;
-  min-width: 0;
-  max-width: 340px;
-  height: 36px;
-  backdrop-filter: blur(4px);
+  border: 1px solid rgba(144, 202, 249, 0.2);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  min-height: 36px;
+  height: auto;
+  backdrop-filter: blur(12px);
 }
 
+.action-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Styled self-contained compact input pill for Filter */
+.action-bar-filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 140px;
+  height: 26px;
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(144, 202, 249, 0.15);
+  border-radius: 6px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.action-bar-filter:focus-within {
+  border-color: rgba(144, 202, 249, 0.45);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
+}
+
+/* Buttons style */
 .action-bar-btn {
   background: transparent;
   color: #e3f2fd;
   border: none;
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-weight: 600;
-  font-size: 18px;
+  border-radius: 6px;
+  padding: 0;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s;
-  min-width: 0;
+  transition: background 0.18s, color 0.18s, transform 0.1s;
+  flex-shrink: 0;
   box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 26px;
+  width: 30px;
+}
+
+.action-bar-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .action-bar-btn.active {
-  background: #1976d2;
+  background: rgba(25, 118, 210, 0.85);
   color: #fff;
+  box-shadow: 0 0 6px rgba(25, 118, 210, 0.3);
 }
 
 .action-bar-btn[disabled] {
@@ -48,120 +82,176 @@
 }
 
 .action-bar-btn:hover:not([disabled]) {
-  background: rgba(25, 118, 210, 0.18);
+  background: rgba(144, 202, 249, 0.15);
   color: #90caf9;
+  transform: translateY(-1px);
 }
 
+.action-bar-btn:active:not([disabled]) {
+  transform: translateY(0);
+}
+
+/* Styled separator as a thin line */
 .action-bar-sep {
-  color: #e3f2fd;
-  font-size: 16px;
-  margin: 0 4px;
-  opacity: 0.35;
-  user-select: none;
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: rgba(144, 202, 249, 0.2);
+  margin: 0 2px;
+  flex-shrink: 0;
+  text-indent: -9999px;
+  overflow: hidden;
+  align-self: center;
 }
 
+/* Styled self-contained compact input pill for Search */
 .action-bar-search {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   position: relative;
-  min-width: 80px;
-  max-width: 120px;
-  flex: 1;
+  width: 130px;
+  height: 26px;
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(144, 202, 249, 0.15);
+  border-radius: 6px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.action-bar-search:focus-within {
+  border-color: rgba(144, 202, 249, 0.45);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.15);
 }
 
 .action-bar-search-icon {
   color: #90caf9;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
 }
 
 .action-bar-search-input {
   border: none;
   outline: none;
-  font-size: 14px;
+  font-size: 12px;
   background: transparent;
   color: #e3f2fd;
   flex: 1;
-  min-width: 60px;
-  max-width: 520px;
-  padding: 2px 6px;
-  height: 28px;
+  min-width: 0;
+  padding: 0;
+  height: 100%;
 }
 
+.action-bar-search-input::placeholder {
+  color: rgba(227, 242, 253, 0.4);
+}
+
+/* Search results dropdown positioned dynamically above the search bar */
 .action-bar-search-results {
   position: absolute;
   left: 0;
-  bottom: 38px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  bottom: calc(100% + 6px);
+  background: rgba(15, 23, 42, 0.96);
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(25, 118, 210, 0.25);
   padding: 4px 0;
-  min-width: 360px;
-  max-height: 260px;
+  min-width: 280px;
+  max-height: 200px;
   overflow-y: auto;
   z-index: 302;
-  color: #222;
+  color: #e3f2fd;
+  backdrop-filter: blur(12px);
 }
 
 .action-bar-search-result {
-  padding: 6px 16px;
+  padding: 6px 12px;
   cursor: pointer;
-  font-size: 14px;
-  color: #222;
-  background: #fff;
+  font-size: 12px;
+  color: #e3f2fd;
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .action-bar-search-result.even {
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.action-bar-search-result:hover {
+  background: rgba(25, 118, 210, 0.25);
+  color: #fff;
 }
 
 .action-bar-search-result-parent {
-  color: #888;
-  margin-left: 8px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-family: monospace;
+  margin-left: 6px;
 }
 
+/* Selected item display */
 .action-bar-selected {
   color: #e3f2fd;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  background: rgba(25,118,210,0.12);
+  background: rgba(25, 118, 210, 0.2);
+  border: 1px solid rgba(144, 202, 249, 0.25);
   border-radius: 6px;
-  padding: 2px 10px;
-  margin-left: 2px;
-  margin-right: 2px;
+  padding: 2px 24px 2px 8px;
+  margin-left: 1px;
+  margin-right: 1px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  max-width: 140px;
+  gap: 5px;
+  max-width: 160px;
+  height: 26px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   position: relative;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .action-bar-selected-id {
-  display: inline-block;
-  max-width: 90px;
+  display: block;
+  max-width: 110px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: middle;
 }
 
 .action-bar-deselect-btn {
   position: absolute;
-  right: 4px;
+  right: 5px;
   top: 50%;
   transform: translateY(-50%);
   margin-left: 0;
-  opacity: 1;
-  visibility: visible;
+  opacity: 0.8;
+  transition: opacity 0.15s, color 0.15s;
   background: transparent;
   color: #90caf9;
   border: none;
-  font-size: 18px;
+  font-size: 12px;
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   z-index: 1;
+}
+
+.action-bar-deselect-btn svg {
+  width: 12px;
+  height: 12px;
+}
+
+.action-bar-deselect-btn:hover {
+  opacity: 1;
+  color: #f43f5e;
 }

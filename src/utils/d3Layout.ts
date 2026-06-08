@@ -59,9 +59,22 @@ export function computeElementPositions(components: ComponentItem[], compPositio
   const elPositions = new Map<string, { x: number; y: number; width: number; height: number }>();
   for (const comp of components || []) {
     const parentPos = compPositions.get(comp.id) ?? { x: ((comp.column ?? 1) - 1) * (COL_WIDTH + COLUMN_GAP), y: 0 };
+    
+    const elementsCount = comp.elements?.length ?? 0;
+    const compHeight = Math.max(
+      ROW_HEIGHT  +  PARENT_PADDING * 2,
+      elementsCount * ELEMENT_H + elementsCount* ELEMENT_GAP +  PARENT_PADDING * 4
+    );
+
+    elPositions.set(comp.id, {
+      x: parentPos.x,
+      y: parentPos.y,
+      width: COL_WIDTH,
+      height: compHeight
+    });
+
     if (Array.isArray(comp.elements)) {
-      const totalElementsHeight = (comp.elements.length * ELEMENT_H) + ((comp.elements.length - 1) * ELEMENT_GAP);
-      const startY = parentPos.y + 60
+      const startY = parentPos.y + 60;
       comp.elements.forEach((el, idx) => {
         const width = ELEMENT_W;
         const height = ELEMENT_H;

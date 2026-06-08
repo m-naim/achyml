@@ -4,7 +4,7 @@ import D3Canvas, { D3CanvasHandle } from "./components/canvas_area/D3Canvas";
 import YamlEditor from "./components/editor/YamlEditor";
 import Palette from "./components/palette/Palette";
 import Properties from "./components/palette/Properties";
-import sampleYaml from "../public/sample.yaml?url&raw";
+import sampleYaml from "/sample.yaml?url&raw";
 // import { SvgChevron } from "./components/canvas_area/SvgChevron";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
@@ -22,6 +22,8 @@ export default function App() {
     elementIds: string[];
     linkIds: string[];
   } | null>(null);
+  const [elementFilter, setElementFilter] = useState("");
+  const [parentsOnly, setParentsOnly] = useState(false);
   const [swaggerModalOpen, setSwaggerModalOpen] = useState(false);
   const selectedId = useStore((s) => s.selectedId);
   const model = useStore((s) => s.model);
@@ -67,14 +69,84 @@ export default function App() {
 
 
   let filteredModel = model;
-  if (chainFilter?.active && chainFilter.elementIds.length > 0) {
-    filteredModel = applyChainFilter(model, chainFilter);
+  
+  if (elementFilter) {
+    const lowerFilter = elementFilter.toLowerCase();
+    const newComponents = (filteredModel.components || [])
+      .map((comp: any) => ({
+        ...comp,
+        elements: (comp.elements || []).filter((el: any) => {
+          const t = el.type?.toLowerCase() || "";
+          const m = el.method?.toLowerCase() || "";
+          const pt = comp.type?.toLowerCase() || "";
+          return t.includes(lowerFilter) || m.includes(lowerFilter) || pt.includes(lowerFilter);
+        }),
+      }))
+      .filter((comp: any) => comp.elements && comp.elements.length > 0);
+      
+    const survivingElementIds = new Set(
+      newComponents.flatMap((c: any) => c.elements.map((e: any) => e.id))
+    );
+    
+    const newLinks = (filteredModel.links || []).filter((l: any) => 
+      survivingElementIds.has(l.from) && survivingElementIds.has(l.to)
+    );
+
+    filteredModel = {
+      ...filteredModel,
+      components: newComponents,
+      links: newLinks,
+    };
   }
 
-  // Zoom to selectedId when it changes
+  if (chainFilter?.active && chainFilter.elementIds.length > 0) {
+    filteredModel = applyChainFilter(filteredModel, chainFilter);
+  }
+
+  if (parentsOnly) {
+    const elToComp = new Map<string, string>();
+    (filteredModel.components || []).forEach((c: any) => {
+      (c.elements || []).forEach((e: any) => {
+        elToComp.set(e.id, c.id);
+      });
+    });
+
+    const newComponents = (filteredModel.components || []).map((c: any) => ({
+      ...c,
+      elements: []
+    }));
+
+    const compLinksMap = new Map<string, any>();
+    (filteredModel.links || []).forEach((l: any) => {
+      const compFrom = elToComp.get(l.from) || l.from;
+      const compTo = elToComp.get(l.to) || l.to;
+      if (compFrom !== compTo) {
+        const linkId = `${compFrom}->${compTo}`;
+        if (!compLinksMap.has(linkId)) {
+          compLinksMap.set(linkId, {
+            id: linkId,
+            from: compFrom,
+            to: compTo,
+          });
+        }
+      }
+    });
+    
+    filteredModel = {
+      ...filteredModel,
+      components: newComponents,
+      links: Array.from(compLinksMap.values()),
+    };
+  }
+
+  // Zoom to selectedId or reset view when it changes
   useEffect(() => {
-    if (selectedId && d3CanvasRef.current) {
-      d3CanvasRef.current.zoomToElement(selectedId);
+    if (d3CanvasRef.current) {
+      if (selectedId) {
+        d3CanvasRef.current.zoomToElement(selectedId);
+      } else {
+        d3CanvasRef.current.resetZoom();
+      }
     }
   }, [selectedId]);
 
@@ -138,6 +210,10 @@ export default function App() {
           chainFilterActive={!!chainFilter?.active}
           selectedId={selectedId}
           onDeselect={() => select(null)}
+          elementFilter={elementFilter}
+          onElementFilterChange={setElementFilter}
+          parentsOnly={parentsOnly}
+          onParentsOnlyToggle={() => setParentsOnly(!parentsOnly)}
         />
         
         <div className="compare-grid">

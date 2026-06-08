@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useStore } from "../../store/store";
 import { calculateChainForComponent } from "../../utils/chainFilterUtils";
 import { LinkItem } from "../../types";
-import { Link2, Plus, X, Search } from "lucide-react";
+import { Link2, Plus, X, Search, Filter, Layers } from "lucide-react";
 import "./ActionBar.css"; // <-- import the new CSS file
 
 function getChainIds(startId: string, links: LinkItem[]) {
@@ -56,6 +56,10 @@ export default function ActionBar({
   chainFilterActive,
   selectedId,
   onDeselect,
+  elementFilter,
+  onElementFilterChange,
+  parentsOnly,
+  onParentsOnlyToggle,
 }: {
   onChainFilter: (filter: {
     active: boolean;
@@ -66,6 +70,10 @@ export default function ActionBar({
   chainFilterActive: boolean;
   selectedId?: string | null;
   onDeselect?: () => void;
+  elementFilter: string;
+  onElementFilterChange: (val: string) => void;
+  parentsOnly: boolean;
+  onParentsOnlyToggle: () => void;
 }) {
   const model = useStore((s) => s.model);
   const select = useStore((s) => s.select);
@@ -99,6 +107,9 @@ export default function ActionBar({
     function handleKey(e: KeyboardEvent) {
       if ((e.key === "c" || e.key === "C") && selectedId) {
         handleChainFilterClick();
+      }
+      if (e.key === "p" || e.key === "P") {
+        onParentsOnlyToggle();
       }
       if (e.key === "a" || e.key === "A") {
         onAddComponent();
@@ -193,6 +204,25 @@ export default function ActionBar({
           </div>
         )}
       </div>
+      <span className="action-bar-sep">|</span>
+      <div className="action-bar-filter">
+        <Filter size={18} className="action-bar-search-icon" />
+        <input
+          type="text"
+          className="action-bar-search-input"
+          placeholder="Filter type, method..."
+          value={elementFilter}
+          onChange={(e) => onElementFilterChange(e.target.value)}
+        />
+      </div>
+      <span className="action-bar-sep">|</span>
+      <button
+        title="Show parents only (P)"
+        className={`action-bar-btn${parentsOnly ? " active" : ""}`}
+        onClick={onParentsOnlyToggle}
+      >
+        <Layers size={22} />
+      </button>
       <span className="action-bar-sep">|</span>
       <button
         title="Show chain filter (C)"

@@ -8,6 +8,7 @@ import { useD3CanvasEffect } from "../../utils/useD3CanvasEffect";
 // Expose zoomToElement by ref
 export type D3CanvasHandle = {
   zoomToElement: (id: string) => void;
+  resetZoom: () => void;
 };
 
 const D3Canvas = forwardRef<D3CanvasHandle, { modelOverride?: Model }>(
@@ -65,7 +66,7 @@ const D3Canvas = forwardRef<D3CanvasHandle, { modelOverride?: Model }>(
         const width = svg.clientWidth;
         const height = svg.clientHeight;
         // Center the element in the view
-        const scale = 10;
+        const scale = 1;
         const x = tx + bbox.x + bbox.width / 2;
         const y = ty + bbox.y + bbox.height / 2;
         const transform = d3.zoomIdentity
@@ -76,7 +77,8 @@ const D3Canvas = forwardRef<D3CanvasHandle, { modelOverride?: Model }>(
     };
 
     useImperativeHandle(ref, () => ({
-      zoomToElement
+      zoomToElement,
+      resetZoom: handleZoomReset
     }));
 
     return (
