@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useStore } from "../../store/store";
 import { calculateChainForComponent } from "../../utils/chainFilterUtils";
 import { LinkItem } from "../../types";
-import { Link2, Plus, X, Search, Filter, Layers } from "lucide-react";
+import { Link2, Plus, X, Search, Filter, Layers, HelpCircle } from "lucide-react";
 import "./ActionBar.css"; // <-- import the new CSS file
 
 function getChainIds(startId: string, links: LinkItem[]) {
@@ -60,6 +60,7 @@ export default function ActionBar({
   onElementFilterChange,
   parentsOnly,
   onParentsOnlyToggle,
+  onOpenDocs,
 }: {
   onChainFilter: (filter: {
     active: boolean;
@@ -74,6 +75,7 @@ export default function ActionBar({
   onElementFilterChange: (val: string) => void;
   parentsOnly: boolean;
   onParentsOnlyToggle: () => void;
+  onOpenDocs: () => void;
 }) {
   const model = useStore((s) => s.model);
   const select = useStore((s) => s.select);
@@ -105,6 +107,10 @@ export default function ActionBar({
   // Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
+      // Avoid firing shortcut if typing in inputs
+      if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+        return;
+      }
       if ((e.key === "c" || e.key === "C") && selectedId) {
         handleChainFilterClick();
       }
@@ -114,13 +120,16 @@ export default function ActionBar({
       if (e.key === "a" || e.key === "A") {
         onAddComponent();
       }
+      if (e.key === "h" || e.key === "H") {
+        onOpenDocs();
+      }
       if ((e.key === "Escape" || e.key === "Esc") && selectedId && onDeselect) {
         onDeselect();
       }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [selectedId, active, onAddComponent, onDeselect]);
+  }, [selectedId, active, onAddComponent, onDeselect, onOpenDocs]);
 
   // Search handler: filter components and elements by name/id/path/method
   useEffect(() => {
@@ -241,6 +250,14 @@ export default function ActionBar({
         onClick={onAddComponent}
       >
         <Plus size={22} />
+      </button>
+      <span className="action-bar-sep">|</span>
+      <button
+        title="Documentation (H)"
+        className="action-bar-btn"
+        onClick={onOpenDocs}
+      >
+        <HelpCircle size={22} />
       </button>
       {selectedId && (
         <>

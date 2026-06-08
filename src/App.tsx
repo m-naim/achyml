@@ -8,6 +8,7 @@ import sampleYaml from "/sample.yaml?url&raw";
 // import { SvgChevron } from "./components/canvas_area/SvgChevron";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import SwaggerImportModal from "./components/modals/SwaggerImportModal";
+import DocsModal from "./components/modals/DocsModal";
 import { applyChainFilter } from "./utils/chainFilterUtils";
 import { useSidebarDrag } from "./utils/useSidebarDrag";
 import ActionBar from "./components/canvas_area/ActionBar";
@@ -25,6 +26,7 @@ export default function App() {
   const [elementFilter, setElementFilter] = useState("");
   const [parentsOnly, setParentsOnly] = useState(false);
   const [swaggerModalOpen, setSwaggerModalOpen] = useState(false);
+  const [docsOpen, setDocsOpen] = useState(false);
   const selectedId = useStore((s) => s.selectedId);
   const model = useStore((s) => s.model);
   const [editorWidth, setEditorWidth] = useState(460);
@@ -239,6 +241,7 @@ export default function App() {
           onElementFilterChange={setElementFilter}
           parentsOnly={parentsOnly}
           onParentsOnlyToggle={() => setParentsOnly(!parentsOnly)}
+          onOpenDocs={() => setDocsOpen(true)}
         />
         
         <div className="compare-grid">
@@ -272,6 +275,9 @@ export default function App() {
         {swaggerModalOpen && (
           <SwaggerImportModal onClose={() => setSwaggerModalOpen(false)} />
         )}
+
+        {/* Modal for Documentation */}
+        <DocsModal isOpen={docsOpen} onClose={() => setDocsOpen(false)} />
 
         <div
           className="sidebar-resize-handle"
