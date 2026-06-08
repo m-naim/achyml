@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>achyml — Visual YAML Architect</title>
+    
+    <!-- Google Fonts: Outfit (headings) & Inter (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+      :root {
+        --bg-color: #020617;
+        --card-bg: rgba(15, 23, 42, 0.65);
+        --border-color: rgba(144, 202, 249, 0.15);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent-blue: #60a5fa;
+        --accent-indigo: #6366f1;
+        --accent-gradient: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #6366f1 100%);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Glowing background blobs */
+      body::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(0,0,0,0) 70%);
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      body::after {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.08) 0%, rgba(0,0,0,0) 70%);
+        bottom: 50px;
+        left: -100px;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      header {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-sizing: border-box;
+      }
+
+      .logo {
+        font-family: 'Outfit', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .hero {
+        max-width: 900px;
+        margin: 80px auto 40px auto;
+        text-align: center;
+        padding: 0 24px;
+        box-sizing: border-box;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: #a5b4fc;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 12px 2px rgba(99, 102, 241, 0.3); }
+      }
+
+      h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 54px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -1.5px;
+        margin: 0 0 20px 0;
+      }
+
+      h1 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .tagline {
+        font-size: 18px;
+        line-height: 1.6;
+        color: var(--text-secondary);
+        max-width: 650px;
+        margin: 0 auto 36px auto;
+      }
+
+      .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent-gradient);
+        color: #fff;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.45);
+      }
+
+      .cta-btn:active {
+        transform: translateY(0);
+      }
+
+      /* Features section */
+      .features {
+        max-width: 1100px;
+        margin: 60px auto 40px auto;
+        padding: 0 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        box-sizing: border-box;
+      }
+
+      .feature-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(12px);
+        transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      }
+
+      .feature-card:hover {
+        border-color: rgba(144, 202, 249, 0.4);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      }
+
+      .feature-card h3 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .feature-card p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      /* Why achyml section (problems & solutions) */
+      .problems-section {
+        max-width: 1100px;
+        margin: 80px auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      .problems-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        margin: 0 0 10px 0;
+      }
+
+      .problems-section h2 span {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .section-tagline {
+        font-size: 16px;
+        color: var(--text-secondary);
+        margin: 0 0 40px 0;
+      }
+
+      .problems-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+      }
+
+      .problem-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        backdrop-filter: blur(12px);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .problem-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        width: fit-content;
+        margin-bottom: 12px;
+      }
+
+      .problem-badge.red {
+        background: rgba(239, 68, 68, 0.15);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .problem-badge.green {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        margin-top: 12px;
+      }
+
+      .problem-card h3 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: #fff;
+      }
+
+      .problem-card p {
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      .arrow-divider {
+        color: rgba(148, 163, 184, 0.4);
+        font-size: 18px;
+        text-align: center;
+        margin: 12px 0 0 0;
+      }
+
+      .solution-text {
+        color: #e2e8f0 !important;
+      }
+
+      /* Code block section */
+      .demo-section {
+        max-width: 1000px;
+        margin: 60px auto 100px auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+      }
+
+      .code-window {
+        background: #090d16;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+      }
+
+      .code-header {
+        background: rgba(15, 23, 42, 0.8);
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .dot.red { background-color: #ef4444; }
+      .dot.yellow { background-color: #f59e0b; }
+      .dot.green { background-color: #10b981; }
+
+      .code-title {
+        font-size: 12px;
+        font-family: monospace;
+        color: var(--text-secondary);
+      }
+
+      pre {
+        margin: 0;
+        padding: 16px 20px;
+        overflow-x: auto;
+      }
+
+      code {
+        font-family: 'Fira Code', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #e2e8f0;
+      }
+
+      .keyword { color: #f472b6; }
+      .string { color: #34d399; }
+      .comment { color: #64748b; }
+      .number { color: #fbbf24; }
+
+      /* Language switcher */
+      .lang-switcher {
+        display: flex;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-right: 16px;
+      }
+      .lang-switcher a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .lang-switcher a:hover {
+        color: #fff;
+      }
+      .lang-switcher a.active {
+        color: var(--accent-blue);
+      }
+
+      /* Responsive styling */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 38px;
+          letter-spacing: -1px;
+        }
+        .hero {
+          margin-top: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    
+    <header>
+      <div class="logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span>achyml</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div class="lang-switcher">
+          <a href="/en/" class="active">EN</a>
+          <span>|</span>
+          <a href="/fr/">FR</a>
+        </div>
+        <a href="/docs/en/" style="color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 600; transition: color 0.2s;" onMouseEnter="this.style.color='#fff'" onMouseLeave="this.style.color='#94a3b8'">Docs</a>
+        <a href="/app/" class="cta-btn" style="padding: 8px 16px; font-size: 14px; box-shadow: none;">Launch App</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span>Version 0.2.0 - Local Sync Active</span>
+      </div>
+      <h1>Define Architecture in <span>YAML</span>.<br>Visualize Instantly.</h1>
+      <p class="tagline">
+        An interactive figma-like architecture diagram generator that visualizes microservices, gateways, databases, and routes directly from standard YAML declaration files.
+      </p>
+      <a href="/app/" class="cta-btn">
+        <span>Get Started</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Folder Level Sync
+        </h3>
+        <p>Select a local folder on your computer and sync all your schema files recursively. Works 100% inside your browser.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <line x1="15" y1="3" x2="15" y2="21"></line>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+          </svg>
+          Auto-Layout Grid
+        </h3>
+        <p>No manual connection linking or node positioning. Components are laid out dynamically based on vertical levels and columns.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          In-Browser Bundler
+        </h3>
+        <p>Specify a main schema entry point and watch the browser compile all your separate component definitions into a unified diagram.</p>
+      </div>
+    </section>
+
+    <!-- Why achyml? (Problems and Solutions) -->
+    <section class="problems-section">
+      <h2>Why <span>achyml</span>?</h2>
+      <p class="section-tagline">Traditional software architecture diagrams are broken. Here is how we fix them.</p>
+      
+      <div class="problems-grid">
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Static & Outdated Drawings</h3>
+          <p>Diagrams drawn on Miro, Figma, or Lucidchart are static drawings. They get outdated the moment your code changes because manually moving boxes and shapes is tedious.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Architecture as Code (AaC).</b> Declare components in simple YAML files inside your repository. Your diagram stays fully synchronized with your codebase.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Manual "Pixel-Pushing" Mess</h3>
+          <p>Developers waste hours grid-snapping boxes, routing links, and restructuring layouts just to insert a single new service in the middle of a diagram.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Automated Layered Layout.</b> Position components using logical vertical <code>level</code> layers and horizontal <code>column</code> ordering. The grid engine aligns and links everything automatically.</p>
+        </div>
+
+        <div class="problem-card">
+          <div class="problem-badge red">The Problem</div>
+          <h3>Ambiguous "Box-to-Box" Links</h3>
+          <p>Standard diagrams only connect box-to-box (Service A speaks to Service B), hiding which specific API endpoints route data to which database tables.</p>
+          <div class="arrow-divider">↓</div>
+          <div class="problem-badge green">Our Solution</div>
+          <p class="solution-text"><b>Fine-Grained Tracing.</b> Link route endpoints directly to database tables. Collapse components for overview, or trace complete dependency chains in one click.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <div class="code-window">
+        <div class="code-header">
+          <div class="dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+          </div>
+          <div class="code-title">schema-src/components/auth-service.yaml</div>
+        </div>
+        <pre><code><span class="keyword">id</span>: <span class="string">svc-auth</span>
+<span class="keyword">type</span>: <span class="string">microservice</span>
+<span class="keyword">name</span>: <span class="string">auth-service</span>
+<span class="keyword">level</span>: <span class="number">1</span>
+<span class="keyword">column</span>: <span class="number">1</span>
+<span class="keyword">elements</span>:
+  - <span class="keyword">id</span>: <span class="string">route-login</span>
+    <span class="keyword">type</span>: <span class="string">route</span>
+    <span class="keyword">method</span>: <span class="string">POST</span>
+    <span class="keyword">path</span>: <span class="string">/login</span>
+    <span class="keyword">dependencies</span>:
+      - <span class="keyword">to</span>: <span class="string">collection-users</span>
+        <span class="keyword">label</span>: <span class="string">writes</span></code></pre>
+      </div>
+    </section>
+
+  </body>
+</html>

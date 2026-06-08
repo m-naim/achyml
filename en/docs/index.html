@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Documentation — achyml</title>
+    
+    <!-- Google Fonts: Outfit & Inter & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+      :root {
+        --bg-color: #020617;
+        --sidebar-bg: rgba(15, 23, 42, 0.85);
+        --card-bg: rgba(30, 41, 59, 0.45);
+        --border-color: rgba(144, 202, 249, 0.15);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent-blue: #60a5fa;
+        --accent-indigo: #6366f1;
+        --accent-gradient: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #6366f1 100%);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+
+      /* Sidebar navigation */
+      aside {
+        width: 280px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 40px 24px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        overflow-y: auto;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .logo {
+        font-family: 'Outfit', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 36px;
+      }
+
+      .nav-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #475569;
+        margin-bottom: 12px;
+      }
+
+      .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 36px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 8px;
+        display: block;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .nav-links a:hover {
+        background: rgba(144, 202, 249, 0.1);
+        color: #fff;
+      }
+
+      .nav-links a.active {
+        background: rgba(25, 118, 210, 0.2);
+        color: #90caf9;
+        font-weight: 600;
+        border: 1px solid rgba(25, 118, 210, 0.3);
+      }
+
+      .action-btns {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        box-sizing: border-box;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .btn.primary {
+        background: var(--accent-gradient);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+      }
+
+      .btn.primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      }
+
+      .btn.secondary {
+        background: transparent;
+        color: #90caf9;
+        border: 1px solid rgba(144, 202, 249, 0.2);
+      }
+
+      .btn.secondary:hover {
+        background: rgba(144, 202, 249, 0.08);
+      }
+
+      /* Main container for text content */
+      main {
+        margin-left: 280px;
+        padding: 60px 80px;
+        max-width: 840px;
+        box-sizing: border-box;
+        line-height: 1.7;
+        font-size: 15px;
+        color: #cbd5e1;
+      }
+
+      h1, h2, h3 {
+        font-family: 'Outfit', sans-serif;
+        color: #fff;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 16px;
+      }
+
+      .lead-p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        margin: 0 0 40px 0;
+      }
+
+      hr {
+        border: 0;
+        height: 1px;
+        background: var(--border-color);
+        margin: 40px 0;
+      }
+
+      section {
+        scroll-margin-top: 60px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 24px;
+        margin-bottom: 12px;
+      }
+
+      p {
+        margin: 0 0 16px 0;
+      }
+
+      code {
+        font-family: 'Fira Code', monospace;
+        font-size: 13.5px;
+        background: rgba(15, 23, 42, 0.6);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #90caf9;
+      }
+
+      pre {
+        background: #090d16;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 16px 20px;
+        overflow-x: auto;
+        margin: 16px 0;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+        color: #e2e8f0;
+      }
+
+      /* Keyboard shortcuts table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      th, td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      th {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: #fff;
+        background: rgba(15, 23, 42, 0.4);
+      }
+
+      kbd {
+        background: #1e293b;
+        border: 1px solid #475569;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #f8fafc;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+      }
+
+      .alert-box {
+        background: rgba(25, 118, 210, 0.12);
+        border-left: 4px solid var(--accent-blue);
+        border-radius: 0 8px 8px 0;
+        padding: 16px 20px;
+        margin: 24px 0;
+      }
+
+      .alert-box b {
+        color: #fff;
+      }
+
+      /* Language switcher */
+      .lang-switcher {
+        display: flex;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+      .lang-switcher a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .lang-switcher a:hover {
+        color: #fff;
+      }
+      .lang-switcher a.active {
+        color: var(--accent-blue);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 992px) {
+        aside {
+          display: none;
+        }
+        main {
+          margin-left: 0;
+          padding: 40px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    
+    <aside>
+      <a href="/en/" class="logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span>achyml</span>
+      </a>
+
+      <div class="lang-switcher">
+        <a href="/docs/en/" class="active">EN</a>
+        <span>|</span>
+        <a href="/docs/fr/">FR</a>
+      </div>
+      
+      <div class="nav-title">Guides</div>
+      <ul class="nav-links">
+        <li><a href="#folder-sync" class="active">Folder Sync</a></li>
+        <li><a href="#yaml-schema">YAML Structure</a></li>
+        <li><a href="#link-rules">Connection Rules</a></li>
+        <li><a href="#shortcuts">Shortcuts</a></li>
+      </ul>
+      
+      <div class="action-btns">
+        <a href="/app/" class="btn primary">Launch Editor</a>
+        <a href="/en/" class="btn secondary">Back to Home</a>
+      </div>
+    </aside>
+
+    <main>
+      <h1>achyml Documentation</h1>
+      <p class="lead-p">Learn how to declare modular system architectures using YAML and synchronize files live in your browser.</p>
+      
+      <hr>
+
+      <section id="folder-sync">
+        <h2>Folder Synchronization & Bundling</h2>
+        <p>
+          achyml allows you to edit files locally in your favorite editor (VS Code, Vim, Sublime Text) and see visual diagram updates in real-time. By utilizing the modern <b>File System Access API</b>, the browser communicates directly with your local workspace.
+        </p>
+        
+        <h3>How to setup local sync</h3>
+        <ol style="padding-left: 20px; margin-bottom: 20px;">
+          <li style="margin-bottom: 8px;">Create a folder on your computer (e.g. <code>my-architecture</code>).</li>
+          <li style="margin-bottom: 8px;">Inside, create your main configuration file (e.g. <code>main.yaml</code>) and one or more component files (e.g. <code>auth-service.yaml</code>).</li>
+          <li style="margin-bottom: 8px;">Open achyml in Chrome or Edge, click <b>"Choose Folder"</b> under the Folder Sync panel, and choose your folder.</li>
+          <li style="margin-bottom: 8px;">Select <code>main.yaml</code> in the dropdown. The browser will scan the directory, find all component files, and compile them on the fly.</li>
+          <li style="margin-bottom: 8px;">Check the <b>"Live Sync"</b> box. Now, saving any file inside the directory in VS Code instantly re-bundles and updates your diagram.</li>
+        </ol>
+
+        <div class="alert-box">
+          <b>ℹ️ Caching and security note:</b> Chrome requires folder permissions again after a full page refresh. Clicking "Choose Folder" remembers your last folder, making re-linking a single-click action.
+        </div>
+      </section>
+
+      <hr>
+
+      <section id="yaml-schema">
+        <h2>YAML Structure & Specification</h2>
+        <p>
+          Your diagram is computed from a set of YAML properties. Below is the specification for the main entry file and component models.
+        </p>
+
+        <h3>Main Configuration File</h3>
+        <p>This file defines global metadata and links connecting elements across services:</p>
+        <pre><code>version: 1
+components: []   # Can be declared inline, or left empty if loading modular files
+links:
+  - id: auth-to-db
+    from: route-login
+    to: collection-users
+    label: writes</code></pre>
+
+        <h3>Component File Schema</h3>
+        <p>Each component (like a microservice or database) is declared with its grid coordinates and internal elements:</p>
+        <pre><code>id: svc-auth
+type: microservice     # Options: gateway, microservice, sql, mongodb, queue, cache, api
+name: auth-service
+level: 1               # Grid depth / row (1 = top row, 2 = second row, etc.)
+column: 1              # Horizontal alignment column (1 = first column, etc.)
+elements:              # Nested items in the box (e.g., API endpoints, DB collections)
+  - id: route-login
+    type: route
+    method: POST
+    path: /login
+  - id: route-register
+    type: route
+    method: POST
+    path: /register</code></pre>
+      </section>
+
+      <hr>
+
+      <section id="link-rules">
+        <h2>Connection & Dependency Mapping</h2>
+        <p>
+          achyml traces fine-grained arrows between components. When writing links, follow these resolving guidelines:
+        </p>
+        
+        <h3>Element-to-Element Links</h3>
+        <p>
+          For precise diagrams, connect the specific route/method to a database table or collection using their internal <code>id</code>. The path will attach on the boundaries and curve cleanly.
+        </p>
+
+        <h3>Component-to-Component Links</h3>
+        <p>
+          If you specify a link from/to a parent component ID (e.g. <code>from: svc-auth</code> instead of <code>route-login</code>), the layout engine will:
+        </p>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+          <li style="margin-bottom: 6px;">Automatically resolve it to the <b>first element</b> found in that component's elements array.</li>
+          <li style="margin-bottom: 6px;">If the component has no elements, the compiler displays a warning instructing you to add an element to attach links.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section id="shortcuts">
+        <h2>Keyboard Shortcuts</h2>
+        <p>Accelerate your visual building workflow with these key shortcuts:</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Shortcuts</th>
+              <th>Action description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><kbd>A</kbd></td>
+              <td>Add Component — Opens component insertion menu</td>
+            </tr>
+            <tr>
+              <td><kbd>P</kbd></td>
+              <td>Toggle Parents View — Collapses components to show component-only connections</td>
+            </tr>
+            <tr>
+              <td><kbd>C</kbd></td>
+              <td>Toggle Chain Filter — Isolates all upstream/downstream paths for selected element</td>
+            </tr>
+            <tr>
+              <td><kbd>Esc</kbd></td>
+              <td>Deselect — Clears selected elements and zooms out to fit diagram</td>
+            </tr>
+            <tr>
+              <td><kbd>H</kbd></td>
+              <td>Documentation — Opens the quick help drawer modal</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            const id = entry.target.getAttribute('id');
+            const link = document.querySelector(`aside nav a[href="#${id}"]`) || 
+                         document.querySelector(`aside a[href="#${id}"]`);
+            if (link) {
+              if (entry.intersectionRatio > 0) {
+                document.querySelectorAll('aside nav a, aside a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('section').forEach(section => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>

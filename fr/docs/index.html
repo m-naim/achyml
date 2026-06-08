@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Documentation — achyml</title>
+    
+    <!-- Google Fonts: Outfit & Inter & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+      :root {
+        --bg-color: #020617;
+        --sidebar-bg: rgba(15, 23, 42, 0.85);
+        --card-bg: rgba(30, 41, 59, 0.45);
+        --border-color: rgba(144, 202, 249, 0.15);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --accent-blue: #60a5fa;
+        --accent-indigo: #6366f1;
+        --accent-gradient: linear-gradient(135deg, #93c5fd 0%, #60a5fa 50%, #6366f1 100%);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        min-height: 100vh;
+        box-sizing: border-box;
+      }
+
+      /* Sidebar navigation */
+      aside {
+        width: 280px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid var(--border-color);
+        padding: 40px 24px;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        overflow-y: auto;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .logo {
+        font-family: 'Outfit', sans-serif;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 36px;
+      }
+
+      .nav-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        color: #475569;
+        margin-bottom: 12px;
+      }
+
+      .nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 36px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 8px;
+        display: block;
+        transition: background 0.2s, color 0.2s;
+      }
+
+      .nav-links a:hover {
+        background: rgba(144, 202, 249, 0.1);
+        color: #fff;
+      }
+
+      .nav-links a.active {
+        background: rgba(25, 118, 210, 0.2);
+        color: #90caf9;
+        font-weight: 600;
+        border: 1px solid rgba(25, 118, 210, 0.3);
+      }
+
+      .action-btns {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-family: 'Outfit', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        box-sizing: border-box;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .btn.primary {
+        background: var(--accent-gradient);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
+      }
+
+      .btn.primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
+      }
+
+      .btn.secondary {
+        background: transparent;
+        color: #90caf9;
+        border: 1px solid rgba(144, 202, 249, 0.2);
+      }
+
+      .btn.secondary:hover {
+        background: rgba(144, 202, 249, 0.08);
+      }
+
+      /* Main container for text content */
+      main {
+        margin-left: 280px;
+        padding: 60px 80px;
+        max-width: 840px;
+        box-sizing: border-box;
+        line-height: 1.7;
+        font-size: 15px;
+        color: #cbd5e1;
+      }
+
+      h1, h2, h3 {
+        font-family: 'Outfit', sans-serif;
+        color: #fff;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 40px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 16px;
+      }
+
+      .lead-p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        margin: 0 0 40px 0;
+      }
+
+      hr {
+        border: 0;
+        height: 1px;
+        background: var(--border-color);
+        margin: 40px 0;
+      }
+
+      section {
+        scroll-margin-top: 60px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+      }
+
+      h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 24px;
+        margin-bottom: 12px;
+      }
+
+      p {
+        margin: 0 0 16px 0;
+      }
+
+      code {
+        font-family: 'Fira Code', monospace;
+        font-size: 13.5px;
+        background: rgba(15, 23, 42, 0.6);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: #90caf9;
+      }
+
+      pre {
+        background: #090d16;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 16px 20px;
+        overflow-x: auto;
+        margin: 16px 0;
+      }
+
+      pre code {
+        background: none;
+        padding: 0;
+        color: #e2e8f0;
+      }
+
+      /* Keyboard shortcuts table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      th, td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      th {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        color: #fff;
+        background: rgba(15, 23, 42, 0.4);
+      }
+
+      kbd {
+        background: #1e293b;
+        border: 1px solid #475569;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #f8fafc;
+        box-shadow: 0 2px 0 rgba(0,0,0,0.25);
+      }
+
+      .alert-box {
+        background: rgba(25, 118, 210, 0.12);
+        border-left: 4px solid var(--accent-blue);
+        border-radius: 0 8px 8px 0;
+        padding: 16px 20px;
+        margin: 24px 0;
+      }
+
+      .alert-box b {
+        color: #fff;
+      }
+
+      /* Language switcher */
+      .lang-switcher {
+        display: flex;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+      .lang-switcher a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .lang-switcher a:hover {
+        color: #fff;
+      }
+      .lang-switcher a.active {
+        color: var(--accent-blue);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 992px) {
+        aside {
+          display: none;
+        }
+        main {
+          margin-left: 0;
+          padding: 40px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    
+    <aside>
+      <a href="/fr/" class="logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #60a5fa">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span>achyml</span>
+      </a>
+
+      <div class="lang-switcher">
+        <a href="/docs/en/">EN</a>
+        <span>|</span>
+        <a href="/docs/fr/" class="active">FR</a>
+      </div>
+      
+      <div class="nav-title">Guides</div>
+      <ul class="nav-links">
+        <li><a href="#folder-sync" class="active">Synchro Dossier</a></li>
+        <li><a href="#yaml-schema">Structure YAML</a></li>
+        <li><a href="#link-rules">Règles de Liaison</a></li>
+        <li><a href="#shortcuts">Raccourcis</a></li>
+      </ul>
+      
+      <div class="action-btns">
+        <a href="/app/" class="btn primary">Lancer l'Éditeur</a>
+        <a href="/fr/" class="btn secondary">Retour à l'Accueil</a>
+      </div>
+    </aside>
+
+    <main>
+      <h1>Documentation achyml</h1>
+      <p class="lead-p">Découvrez comment déclarer des architectures système modulaires en YAML et synchroniser vos fichiers en temps réel.</p>
+      
+      <hr>
+
+      <section id="folder-sync">
+        <h2>Synchronisation & Assemblage de Dossier</h2>
+        <p>
+          achyml vous permet d'éditer des fichiers localement dans votre éditeur favori (VS Code, Vim, Sublime Text) et de voir les mises à jour graphiques en temps réel. Grâce à l'API moderne <b>File System Access</b>, le navigateur communique directement avec votre espace de travail local.
+        </p>
+        
+        <h3>Comment configurer la synchronisation locale</h3>
+        <ol style="padding-left: 20px; margin-bottom: 20px;">
+          <li style="margin-bottom: 8px;">Créez un dossier sur votre ordinateur (ex: <code>mon-architecture</code>).</li>
+          <li style="margin-bottom: 8px;">À l'intérieur, créez votre fichier de configuration principal (ex: <code>main.yaml</code>) et un ou plusieurs fichiers de composants (ex: <code>auth-service.yaml</code>).</li>
+          <li style="margin-bottom: 8px;">Ouvrez achyml dans Chrome ou Edge, cliquez sur <b>"Choose Folder"</b> dans le panneau de synchronisation à gauche, et sélectionnez votre dossier.</li>
+          <li style="margin-bottom: 8px;">Choisissez <code>main.yaml</code> dans le menu déroulant. Le navigateur analyse le répertoire, détecte les composants et les assemble à la volée.</li>
+          <li style="margin-bottom: 8px;">Cochez la case <b>"Live Sync"</b>. Désormais, chaque fois que vous sauvegardez un fichier de ce dossier dans VS Code, le navigateur compile et met à jour votre diagramme instantanément.</li>
+        </ol>
+
+        <div class="alert-box">
+          <b>ℹ️ Note de sécurité :</b> Chrome demande l'autorisation d'accès au dossier après un rechargement complet de la page. Cliquer sur "Choose Folder" rouvrira le dernier dossier sélectionné en un seul clic.
+        </div>
+      </section>
+
+      <hr>
+
+      <section id="yaml-schema">
+        <h2>Structure & Spécification du YAML</h2>
+        <p>
+          Votre diagramme est calculé à partir de propriétés YAML. Voici la spécification pour le fichier principal et les composants individuels.
+        </p>
+
+        <h3>Fichier Principal (Main)</h3>
+        <p>Ce fichier définit les métadonnées globales et les liens reliant les éléments de vos services :</p>
+        <pre><code>version: 1
+components: []   # Peut être déclaré en ligne, ou laissé vide lors du chargement modulaire
+links:
+  - id: auth-to-db
+    from: route-login
+    to: collection-users
+    label: writes</code></pre>
+
+        <h3>Structure d'un composant (Fichier individuel)</h3>
+        <p>Chaque composant (comme un microservice ou une base de données) est déclaré avec ses coordonnées et ses éléments internes :</p>
+        <pre><code>id: svc-auth
+type: microservice     # Choix : gateway, microservice, sql, mongodb, queue, cache, api
+name: auth-service
+level: 1               # Niveau vertical (1 = ligne du haut, 2 = deuxième ligne, etc.)
+column: 1              # Position horizontale (1 = première colonne, etc.)
+elements:              # Éléments imbriqués (ex: routes d'API, tables de base de données)
+  - id: route-login
+    type: route
+    method: POST
+    path: /login
+  - id: route-register
+    type: route
+    method: POST
+    path: /register</code></pre>
+      </section>
+
+      <hr>
+
+      <section id="link-rules">
+        <h2>Règles des Liaisons & Dépendances</h2>
+        <p>
+          achyml trace des flèches fines entre les blocs. Suivez ces directives pour écrire des liaisons valides :
+        </p>
+        
+        <h3>Liaisons Élément à Élément</h3>
+        <p>
+          Pour des diagrammes détaillés et précis, reliez l'identifiant exact d'une route ou d'une méthode à une collection ou table de base de données en utilisant leur <code>id</code>. Le chemin se connectera élégamment sur les bordures.
+        </p>
+
+        <h3>Liaisons Composant à Composant</h3>
+        <p>
+          Si vous spécifiez un lien reliant l'ID global d'un composant parent (ex: <code>from: svc-auth</code> au lieu de <code>route-login</code>), le moteur :
+        </p>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+          <li style="margin-bottom: 6px;">Résoudra automatiquement la liaison sur le <b>premier élément interne</b> déclaré dans le composant.</li>
+          <li style="margin-bottom: 6px;">Si le composant ne contient aucun élément, le compilateur affichera une erreur vous demandant d'ajouter au moins un élément pour pouvoir attacher le lien.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section id="shortcuts">
+        <h2>Raccourcis Clavier</h2>
+        <p>Accélérez votre processus de conception grâce à ces raccourcis intégrés :</p>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>Raccourci</th>
+              <th>Description de l'action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><kbd>A</kbd></td>
+              <td>Ajouter composant — Ouvre le menu d'ajout de bloc</td>
+            </tr>
+            <tr>
+              <td><kbd>P</kbd></td>
+              <td>Vue parents uniquement — Masque les éléments pour n'afficher que les boîtes principales</td>
+            </tr>
+            <tr>
+              <td><kbd>C</kbd></td>
+              <td>Filtre de chaîne — Isole les flux d'appels amont/aval de l'élément sélectionné</td>
+            </tr>
+            <tr>
+              <td><kbd>Esc</kbd></td>
+              <td>Désélectionner — Annule la sélection et recentre la vue</td>
+            </tr>
+            <tr>
+              <td><kbd>H</kbd></td>
+              <td>Documentation — Ouvre le tiroir d'aide rapide</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            const id = entry.target.getAttribute('id');
+            const link = document.querySelector(`aside nav a[href="#${id}"]`) || 
+                         document.querySelector(`aside a[href="#${id}"]`);
+            if (link) {
+              if (entry.intersectionRatio > 0) {
+                document.querySelectorAll('aside nav a, aside a').forEach(a => a.classList.remove('active'));
+                link.classList.add('active');
+              }
+            }
+          });
+        });
+
+        document.querySelectorAll('section').forEach(section => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>
