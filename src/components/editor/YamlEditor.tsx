@@ -5,7 +5,10 @@ import YamlEditorToolbar from "./YamlEditorToolbar";
 import YamlMonacoEditor from "./YamlMonacoEditor";
 
 
-export default function YamlEditor() {
+export default function YamlEditor({ useLocalFile, onToggleLocalFile }: {
+  useLocalFile: boolean;
+  onToggleLocalFile: (val: boolean) => void;
+}) {
   const store = useStore();
   const [text, setText] = useState(store.toYaml());
   const [msg, setMsg] = useState<string | null>(null);
@@ -36,6 +39,7 @@ export default function YamlEditor() {
   // Keyboard shortcut: Ctrl+S / Cmd+S to save/apply YAML
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (useLocalFile) return; // ignore save shortcut in sync mode
       if (
         (e.ctrlKey || e.metaKey) &&
         (e.key === "s" || e.key === "S")
@@ -46,10 +50,11 @@ export default function YamlEditor() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [text]);
+  }, [text, useLocalFile]);
 
   // Actions
   const apply = () => {
+    if (useLocalFile) return;
     const res = store.setModelFromYaml(text);
     if (!res.ok) {
       setMsg("Erreur YAML: " + (res.error ?? "unknown"));
@@ -70,6 +75,7 @@ export default function YamlEditor() {
   };
 
   const importFile = async (f?: File) => {
+    if (useLocalFile) return;
     try {
       let file = f;
       if (!file) {
@@ -106,7 +112,15 @@ export default function YamlEditor() {
         onApply={apply}
         onExport={exportYaml}
         onImport={importFile}
+        useLocalFile={useLocalFile}
+        onToggleLocalFile={onToggleLocalFile}
       />
+      {useLocalFile && (
+        <div style={{ padding: "8px 12px", margin: "8px 0", background: "rgba(25, 118, 210, 0.15)", borderRadius: 8, fontSize: 12, color: "#90caf9", border: "1px solid rgba(25, 118, 210, 0.3)", lineHeight: "1.5" }}>
+          🔄 <b>Local File Sync Active</b><br />
+          Edits made in this web editor are temporary. Edit the file directly in your local text editor (e.g. VS Code) at <code>public/sample.yaml</code>. The browser will auto-reload when you save!
+        </div>
+      )}
       {msg && <div style={{ marginTop: 8, color: "crimson" }}>{msg}</div>}
       <YamlMonacoEditor
         value={text}
