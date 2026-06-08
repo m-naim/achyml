@@ -14,13 +14,16 @@ export function renderLinks(
     const t = elPositions.get(l.to);
     if (!s || !t) continue;
 
-    const sx = s.x + s.width;
+    const isLeftToRight = (t.x + t.width / 2) >= (s.x + s.width / 2);
+    const sx = isLeftToRight ? (s.x + s.width) : s.x;
     const sy = s.y + s.height / 2;
-    const tx = t.x;
+    const tx = isLeftToRight ? t.x : (t.x + t.width);
     const ty = t.y + t.height / 2;
     const dx = tx - sx;
     const curve = Math.min(60, Math.abs(dx) / 2);
-    const pathD = `M ${sx} ${sy} C ${sx + curve} ${sy} ${tx - curve} ${ty} ${tx} ${ty}`;
+    const pathD = isLeftToRight
+      ? `M ${sx} ${sy} C ${sx + curve} ${sy} ${tx - curve} ${ty} ${tx} ${ty}`
+      : `M ${sx} ${sy} C ${sx - curve} ${sy} ${tx + curve} ${ty} ${tx} ${ty}`;
 
     const linkStyle = getStyle(model, "link", l.label);
 
