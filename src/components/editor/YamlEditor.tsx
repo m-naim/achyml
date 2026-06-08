@@ -3,6 +3,7 @@ import { useStore } from "../../store/store";
 import { setupYamlMonacoSchema } from "../../utils/yamlMonaco";
 import YamlEditorToolbar from "./YamlEditorToolbar";
 import YamlMonacoEditor from "./YamlMonacoEditor";
+import jsYaml from "js-yaml";
 
 async function scanDirectory(dirHandle: any): Promise<Array<{ name: string; handle: any }>> {
   const list: Array<{ name: string; handle: any }> = [];
@@ -29,6 +30,67 @@ async function scanDirectory(dirHandle: any): Promise<Array<{ name: string; hand
   await scan(dirHandle);
   list.sort((a, b) => a.name.localeCompare(b.name));
   return list;
+}
+
+async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ name: string; handle: any }>): Promise<{ ok: boolean; model?: any; error?: string }> {
+  try {
+    const mainItem = filesList.find(f => f.name === mainFileName);
+    if (!mainItem) {
+      return { ok: false, error: `Main file '${mainFileName}' not found.` };
+    }
+
+    // 1. Read and parse main file
+    const mainFile = await mainItem.handle.getFile();
+    const mainText = await mainFile.text();
+    let mainDoc: any;
+    try {
+      if (mainFileName.endsWith(".json")) {
+        mainDoc = JSON.parse(mainText);
+      } else {
+        mainDoc = jsYaml.load(mainText);
+      }
+    } catch (e: any) {
+      return { ok: false, error: `Parse error in main file: ${e.message}` };
+    }
+
+    if (!mainDoc) {
+      mainDoc = {};
+    }
+
+    mainDoc.components = mainDoc.components || [];
+
+    // 2. Read and parse all other files (component files)
+    for (const item of filesList) {
+      if (item.name === mainFileName) continue;
+      
+      try {
+        const file = await item.handle.getFile();
+        const text = await file.text();
+        let doc: any;
+        if (item.name.endsWith(".json")) {
+          doc = JSON.parse(text);
+        } else {
+          doc = jsYaml.load(text);
+        }
+
+        if (doc) {
+          if (Array.isArray(doc)) {
+            mainDoc.components.push(...doc);
+          } else if (doc.components && Array.isArray(doc.components)) {
+            mainDoc.components.push(...doc.components);
+          } else if (doc.id) {
+            mainDoc.components.push(doc);
+          }
+        }
+      } catch (err: any) {
+        console.warn(`Skipped bundling file ${item.name}:`, err);
+      }
+    }
+
+    return { ok: true, model: mainDoc };
+  } catch (err: any) {
+    return { ok: false, error: err.message };
+  }
 }
 
 export default function YamlEditor({ useLocalFile, onToggleLocalFile }: {
@@ -83,91 +145,98 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile }: {
     }
   };
 
-  const handleFileSelect = async (fileName: string) => {
+  const handleFileSelect = (fileName: string) => {
     setSelectedFileName(fileName);
     if (!fileName) {
       setSelectedFileHandle(null);
-      return;
-    }
-    const item = filesList.find(f => f.name === fileName);
-    if (!item) return;
-
-    setSelectedFileHandle(item.handle);
-    try {
-      const file = await item.handle.getFile();
-      const text = await file.text();
-      let res;
-      if (fileName.endsWith(".json")) {
-        try {
-          const json = JSON.parse(text);
-          store.setModel(json);
-          res = { ok: true };
-        } catch (e: any) {
-          res = { ok: false, error: e.message };
-        }
-      } else {
-        res = store.setModelFromYaml(text);
-      }
-      if (!res.ok) {
-        setMsg(`Error loading ${fileName}: ${res.error}`);
-      } else {
-        setMsg(`Loaded ${fileName}`);
-        setTimeout(() => setMsg(null), 2000);
-      }
-    } catch (err: any) {
-      setMsg(`Error reading file: ${err.message}`);
+    } else {
+      const item = filesList.find(f => f.name === fileName);
+      if (item) setSelectedFileHandle(item.handle);
     }
   };
 
-  // Auto-polling for local directory file sync
+  // Auto-polling and browser-based bundling logic
   useEffect(() => {
-    if (!selectedFileHandle || !autoPoll) return;
+    if (filesList.length === 0 || !selectedFileName) return;
     let active = true;
-    let lastModified = 0;
+    
+    // Store last modified times for all files in the list
+    const fileTimestamps = new Map<string, number>();
 
-    selectedFileHandle.getFile().then((file: any) => {
-      lastModified = file.lastModified;
-    });
-
-    const checkFile = async () => {
+    // Initial load and bundle
+    const initializeAndBundle = async () => {
       try {
-        const file = await selectedFileHandle.getFile();
-        if (file.lastModified !== lastModified) {
-          lastModified = file.lastModified;
-          const text = await file.text();
-          let res;
-          if (selectedFileName.endsWith(".json")) {
-            try {
-              const json = JSON.parse(text);
-              store.setModel(json);
-              res = { ok: true };
-            } catch (e: any) {
-              res = { ok: false, error: e.message };
+        for (const item of filesList) {
+          const file = await item.handle.getFile();
+          fileTimestamps.set(item.name, file.lastModified);
+        }
+        
+        const res = await bundleFilesInBrowser(selectedFileName, filesList);
+        if (active) {
+          if (res.ok && res.model) {
+            const yamlStr = jsYaml.dump(res.model);
+            const importRes = store.setModelFromYaml(yamlStr);
+            if (!importRes.ok) {
+              setMsg(`Bundle validation error: ${importRes.error}`);
+            } else {
+              setMsg(`Bundled ${selectedFileName} + ${filesList.length - 1} component files`);
+              setTimeout(() => setMsg(null), 2500);
             }
           } else {
-            res = store.setModelFromYaml(text);
-          }
-          if (!res.ok) {
-            setMsg(`Auto-sync error: ${res.error}`);
-          } else {
-            setMsg(`Auto-synced ${selectedFileName}`);
-            setTimeout(() => setMsg(null), 1500);
+            setMsg(`Bundle error: ${res.error}`);
           }
         }
       } catch (err: any) {
-        console.error("Auto-sync file check failed", err);
+        console.error("Failed to initialize timestamps", err);
+      }
+    };
+
+    initializeAndBundle();
+
+    if (!autoPoll) return; // don't start polling loop if disabled
+
+    // Polling function
+    const checkFiles = async () => {
+      let changed = false;
+      try {
+        for (const item of filesList) {
+          const file = await item.handle.getFile();
+          const prevTime = fileTimestamps.get(item.name) || 0;
+          if (file.lastModified !== prevTime) {
+            fileTimestamps.set(item.name, file.lastModified);
+            changed = true;
+          }
+        }
+
+        if (changed && active) {
+          const res = await bundleFilesInBrowser(selectedFileName, filesList);
+          if (res.ok && res.model) {
+            const yamlStr = jsYaml.dump(res.model);
+            const importRes = store.setModelFromYaml(yamlStr);
+            if (!importRes.ok) {
+              setMsg(`Auto-sync validation error: ${importRes.error}`);
+            } else {
+              setMsg(`Auto-rebundled ${selectedFileName} (changes detected)`);
+              setTimeout(() => setMsg(null), 1500);
+            }
+          } else {
+            setMsg(`Bundle error: ${res.error}`);
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed checking files during polling", err);
       }
     };
 
     const interval = setInterval(() => {
-      if (active) checkFile();
+      if (active) checkFiles();
     }, 1000);
 
     return () => {
       active = false;
       clearInterval(interval);
     };
-  }, [selectedFileHandle, autoPoll, selectedFileName]);
+  }, [filesList, selectedFileName, autoPoll]);
 
   // Initialisation du YAML et du schéma
   useEffect(() => {
