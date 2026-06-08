@@ -64,7 +64,7 @@ function resolveRelativePath(currentFilePath: string, referencedPath: string): s
   return resultSegments.join('/');
 }
 
-async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ name: string; handle: any }>): Promise<{ ok: boolean; model?: any; error?: string }> {
+async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ name: string; handle: any }>, mainFileEditorContent?: string): Promise<{ ok: boolean; model?: any; error?: string }> {
   try {
     const mainItem = filesList.find(f => normalizePath(f.name) === normalizePath(mainFileName));
     if (!mainItem) {
@@ -107,22 +107,34 @@ async function bundleFilesInBrowser(mainFileName: string, filesList: Array<{ nam
       if (visited.has(normalized)) return null;
       visited.add(normalized);
 
-      const item = filesList.find(f => normalizePath(f.name) === normalized);
-      if (!item) {
-        throw new Error(`File '${filePath}' not found in the selected folder.`);
-      }
-
-      const file = await item.handle.getFile();
-      const text = await file.text();
       let doc: any;
-      try {
-        if (normalized.endsWith(".json")) {
-          doc = JSON.parse(text);
-        } else {
-          doc = jsYaml.load(text);
+      if (normalized === normalizePath(mainFileName) && mainFileEditorContent !== undefined) {
+        try {
+          if (normalized.endsWith(".json")) {
+            doc = JSON.parse(mainFileEditorContent);
+          } else {
+            doc = jsYaml.load(mainFileEditorContent);
+          }
+        } catch (e: any) {
+          throw new Error(`Parse error in main file (editor): ${e.message}`);
         }
-      } catch (e: any) {
-        throw new Error(`Parse error in '${filePath}': ${e.message}`);
+      } else {
+        const item = filesList.find(f => normalizePath(f.name) === normalized);
+        if (!item) {
+          throw new Error(`File '${filePath}' not found in the selected folder.`);
+        }
+
+        const file = await item.handle.getFile();
+        const text = await file.text();
+        try {
+          if (normalized.endsWith(".json")) {
+            doc = JSON.parse(text);
+          } else {
+            doc = jsYaml.load(text);
+          }
+        } catch (e: any) {
+          throw new Error(`Parse error in '${filePath}': ${e.message}`);
+        }
       }
 
       if (!doc) return null;
@@ -225,6 +237,10 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileT
 }) {
   const store = useStore();
   const [text, setText] = useState(store.toYaml());
+  const textRef = useRef(text);
+  useEffect(() => {
+    textRef.current = text;
+  }, [text]);
   const [msg, setMsg] = useState<string | null>(null);
   const timerRef = useRef<number | null>(null);
   const [schema, setSchema] = useState<any | null>(null);
@@ -297,7 +313,7 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileT
           fileTimestamps.set(item.name, file.lastModified);
         }
         
-        const res = await bundleFilesInBrowser(selectedFileName, filesList);
+        const res = await bundleFilesInBrowser(selectedFileName, filesList, textRef.current);
         if (active) {
           if (res.ok && res.model) {
             const yamlStr = jsYaml.dump(res.model);
@@ -324,6 +340,7 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileT
     // Polling function
     const checkFiles = async () => {
       let changed = false;
+      let mainFileChangedOnDisk = false;
       try {
         for (const item of filesList) {
           const file = await item.handle.getFile();
@@ -331,11 +348,25 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileT
           if (file.lastModified !== prevTime) {
             fileTimestamps.set(item.name, file.lastModified);
             changed = true;
+            if (normalizePath(item.name) === normalizePath(selectedFileName)) {
+              mainFileChangedOnDisk = true;
+            }
+          }
+        }
+
+        let mainFileTextToUse = textRef.current;
+        if (mainFileChangedOnDisk) {
+          const mainItem = filesList.find(f => normalizePath(f.name) === normalizePath(selectedFileName));
+          if (mainItem) {
+            const file = await mainItem.handle.getFile();
+            mainFileTextToUse = await file.text();
+            setText(mainFileTextToUse);
+            textRef.current = mainFileTextToUse;
           }
         }
 
         if (changed && active) {
-          const res = await bundleFilesInBrowser(selectedFileName, filesList);
+          const res = await bundleFilesInBrowser(selectedFileName, filesList, mainFileTextToUse);
           if (res.ok && res.model) {
             const yamlStr = jsYaml.dump(res.model);
             const importRes = store.setModelFromYaml(yamlStr);
@@ -386,19 +417,43 @@ export default function YamlEditor({ useLocalFile, onToggleLocalFile, localFileT
 
   // Keyboard shortcut: Ctrl+S / Cmd+S to save/apply YAML
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (useLocalFile || selectedFileHandle) return; // ignore save shortcut in sync modes
+    const handler = async (e: KeyboardEvent) => {
+      if (useLocalFile) return; // ignore save shortcut in sync modes
       if (
         (e.ctrlKey || e.metaKey) &&
         (e.key === "s" || e.key === "S")
       ) {
         e.preventDefault();
-        apply();
+        
+        if (selectedFileHandle) {
+          try {
+            // Write back to disk
+            const writable = await selectedFileHandle.createWritable();
+            await writable.write(text);
+            await writable.close();
+            
+            // Re-bundle immediately in memory
+            const res = await bundleFilesInBrowser(selectedFileName, filesList, text);
+            if (res.ok && res.model) {
+              const yamlStr = jsYaml.dump(res.model);
+              store.setModelFromYaml(yamlStr);
+              setMsg("File saved and bundled");
+            } else {
+              setMsg(`Saved, but bundle error: ${res.error}`);
+            }
+            setTimeout(() => setMsg(null), 2000);
+          } catch (err: any) {
+            setMsg("Failed to save file: " + err.message);
+            setTimeout(() => setMsg(null), 3000);
+          }
+        } else {
+          apply();
+        }
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [text, useLocalFile, selectedFileHandle]);
+  }, [text, useLocalFile, selectedFileHandle, selectedFileName, filesList]);
 
   // Actions
   const apply = () => {
